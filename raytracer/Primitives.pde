@@ -153,7 +153,50 @@ class Triangle implements SceneObject
     ArrayList<RayHit> intersect(Ray r)
     {
         ArrayList<RayHit> result = new ArrayList<RayHit>();
+        
+        //im assuming we find the point first, but idk what or how or when why what?? :'(
+        // and then instead of ray r probably pass in that point
+        
+        // call point in triangle here after getting that point?? maybe??
+        // idk yet if we'll need u and v again, in that case probably call sameside too to get them??
+        
+        // and then if pointintriangle is true, put the point(s?) in result and return it??
+        // and if not just leave it empty?? :(
         return result;
+    }
+    
+    ArrayList<Float> SameSide(PVector a, PVector b, PVector c, Ray r)
+    {
+      ArrayList<Float> UandV = new ArrayList<Float>();
+      PVector e = PVector.sub(b, a);
+      PVector reverseg = PVector.sub(c,a);
+      PVector d = PVector.sub(r.origin, a);
+      
+      // Dot products
+      float dotE = e.dot(e);
+      float dotReverseG = reverseg.dot(reverseg);
+      float EdotReverseG = e.dot(reverseg);
+      float ReverseGdotE = reverseg.dot(e);
+      
+      float denom = (dotE * dotReverseG) - (EdotReverseG * ReverseGdotE);
+      
+      // Calculate u and v
+      float u = ((dotReverseG * d.dot(e)) - (EdotReverseG * d.dot(reverseg))) / denom;
+      float v = ((dotE * d.dot(reverseg)) - (EdotReverseG * d.dot(e))) / denom;
+      
+      UandV.add(u);
+      UandV.add(v);
+      
+      return UandV;
+    }
+    
+    boolean PointInTriangle(PVector a, PVector b, PVector c, Ray r)
+    {
+      ArrayList<Float> uandv = SameSide(a, b ,c, r);
+      float u = uandv.get(0);
+      float v = uandv.get(1);
+      
+      return u >= 0 && v >= 0 && (u+v) <= 1;
     }
 }
 
