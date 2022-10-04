@@ -88,43 +88,59 @@ class Plane implements SceneObject
     ArrayList<RayHit> intersect(Ray r)
     {
         ArrayList<RayHit> result = new ArrayList<RayHit>();
-        /*
+        
         RayHit entry = new RayHit();
         RayHit exit = new RayHit();
      
-        
- //Finding t
- 
+         
+        //Finding t
         PVector cminusr = PVector.sub(r.origin, center);
         float multdir = cminusr.dot(normal);
         PVector planedir = r.direction;
         float denom = planedir.dot(normal); 
+        //determing if and where a ray y hits a plane
         float t = multdir/denom; 
- //determing if and where a ray y hits a plane
         PVector yoft = PVector.add(r.origin, PVector.mult(r.direction, t));
-        println(yoft);
-     
-      entry.setL(yoft);
-      if (multdir <= 0 && t < 0){
-        entry.setE(false);
-      }
-      else{
-        entry.setE(true); 
-      }
-      entry.setM(material);
-      entry.setN(normal);
-      entry.setU(0.0);
-      entry.setV(0.0);
-        
-      exit.setL(  
-      exit.setM(material);
-         
-        */
+        entry.setT(t);
+       
+        entry.setL(yoft);
+        if (multdir != 0){
+          entry.setE(true);
+        }
+        else{
+          entry.setE(false);
+        }
+        entry.setT(t);
+        entry.setM(material);
+        entry.setN(normal);
+        entry.setU(0.0);
+        entry.setV(0.0);
+      
+        exit.setT(t);
+        exit.setL(yoft);
+        exit.setE(false);
+        exit.setM(material);
+        exit.setN(normal);
+        exit.setU(0.0);
+        exit.setV(0.0);
+          
+        if (t > 0){
+          if(denom < 0){
+            result.add(exit);
+            result.add(entry);
+          }
+        }
+        else{
+          result.add(entry);
+          result.add(exit);
+       }
+      
         return result;
     }
+   
 }
 
-class Triangle implements SceneObject //get normal vector with the cross product (of direction??)
+class Triangle implements SceneObject
 {
     PVector v1;
     PVector v2;
@@ -147,57 +163,98 @@ class Triangle implements SceneObject //get normal vector with the cross product
        this.material = material;
        
        // remove this line when you implement triangles
-       throw new NotImplementedException("Triangles not implemented yet");
+       //throw new NotImplementedException("Triangles not implemented yet");
+    }
+    
+    float[] SameSide(PVector a, PVector b, PVector c, PVector p)
+    {
+       float[] UandV = new float[2];
+        
+       PVector e = PVector.sub(b,a);
+       PVector rg = PVector.sub(c,a);
+       PVector d = PVector.sub(p,a);
+       
+       //dot products
+       float dotE = e.dot(e);
+       float dotRG = rg.dot(rg);
+       float EdotRG = e.dot(rg);
+       float RGdotE = rg.dot(e);
+       float denom = (dotE * dotRG) - (EdotRG * RGdotE);
+       
+       //calculate u and v
+       UandV[0] = ((dotRG * d.dot(e)) - (EdotRG * d.dot(rg))) / denom;
+       UandV[1] = ((dotE * d.dot(rg)) - (EdotRG * d.dot(e))) / denom;
+       
+       //UandV.add(u);
+       //UandV.add(v);
+     
+       return UandV;
+    }
+    
+    boolean PointInTriangle(PVector a, PVector b, PVector c, PVector p)
+    {
+      float u = SameSide(a, b, c, p)[0];
+      float v = SameSide(a, b, c, p)[1];
+      
+      if( u >= 0 && (v >= 0) && u+v <= 1)
+      {
+       return true;
+      }
+      return false;
     }
     
     ArrayList<RayHit> intersect(Ray r)
     {
         ArrayList<RayHit> result = new ArrayList<RayHit>();
+        RayHit entry = new RayHit();
+        RayHit exit = new RayHit();
         
-        //im assuming we find the point first, but idk what or how or when why what?? :'(
-        // and then instead of ray r probably pass in that point
+        //finding t
+        float tnum = PVector.dot(PVector.sub(v1, r.origin), normal);
+        float tdenom = PVector.dot(r.direction, normal);
+        float t = tnum / tdenom;
         
-        // call point in triangle here after getting that point?? maybe??
-        // idk yet if we'll need u and v again, in that case probably call sameside too to get them??
-        
-        // and then if pointintriangle is true, put the point(s?) in result and return it??
-        // and if not just leave it empty?? :(
+        if(t > 0 &&  tdenom != 0){
+          //where ray y hits a plane 
+          PVector triyoft = PVector.add(r.origin, PVector.mult(r.direction, t));
+          if(tdenom <= 0)
+          {
+            entry.setT(t);
+            entry.setL(triyoft);
+            entry.setE(true);
+            entry.setN(normal);
+            entry.setM(material);
+            entry.setU(0.0);
+            entry.setV(0.0);
+          }
+          else{
+            exit.setT(t);
+            exit.setL(triyoft);
+            exit.setE(false);
+            exit.setN(normal);
+            exit.setM(material);
+            exit.setU(0.0);
+            exit.setV(0.0);
+          } 
+          float[] uv = SameSide(v1, v2, v3, triyoft);
+          float u = uv[0];
+          float v = uv[1];
+          
+          boolean pit = PointInTriangle(v1, v2, v3, triyoft);
+          if(pit){
+              result.add(entry);
+              result.add(exit);
+              return result;
+          }
+          
+          //return result;
+
+        }
         return result;
-    }
-    
-    ArrayList<Float> SameSide(PVector a, PVector b, PVector c, Ray r)
-    {
-      ArrayList<Float> UandV = new ArrayList<Float>();
-      PVector e = PVector.sub(b, a);
-      PVector reverseg = PVector.sub(c,a);
-      PVector d = PVector.sub(r.origin, a);
-      
-      // Dot products
-      float dotE = e.dot(e);
-      float dotReverseG = reverseg.dot(reverseg);
-      float EdotReverseG = e.dot(reverseg);
-      float ReverseGdotE = reverseg.dot(e);
-      
-      float denom = (dotE * dotReverseG) - (EdotReverseG * ReverseGdotE);
-      
-      // Calculate u and v
-      float u = ((dotReverseG * d.dot(e)) - (EdotReverseG * d.dot(reverseg))) / denom;
-      float v = ((dotE * d.dot(reverseg)) - (EdotReverseG * d.dot(e))) / denom;
-      
-      UandV.add(u);
-      UandV.add(v);
-      
-      return UandV;
-    }
-    
-    boolean PointInTriangle(PVector a, PVector b, PVector c, Ray r)
-    {
-      ArrayList<Float> uandv = SameSide(a, b ,c, r);
-      float u = uandv.get(0);
-      float v = uandv.get(1);
-      
-      return u >= 0 && v >= 0 && (u+v) <= 1;
-    }
+          
+      }
+
+
 }
 
 class Cylinder implements SceneObject
@@ -318,3 +375,4 @@ class HyperboloidTwoSheet implements SceneObject
         return result;
     }
 }
+>>>>>>> d9f198ef36fa1eadad0bc8c4501832c5a1624cc8
