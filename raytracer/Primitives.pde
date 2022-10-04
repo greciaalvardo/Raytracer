@@ -124,7 +124,7 @@ class Plane implements SceneObject
     }
 }
 
-class Triangle implements SceneObject
+class Triangle implements SceneObject //get normal vector with the cross product (of direction??)
 {
     PVector v1;
     PVector v2;
