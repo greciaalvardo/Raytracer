@@ -1,5 +1,5 @@
-String input =  "data/tests/milestone1/test1.json";
-String output = "data/tests/milestone1/test1.png";
+String input =  "data/tests/milestone1/test3.json";
+String output = "data/tests/milestone1/test3.png";
 int repeat = 0;
 
 int iteration = 0;
@@ -140,7 +140,7 @@ class RayTracer
       float u = x*1.0/w - 0.5;
       float v = (y*1.0/h - 0.5);
       PVector origin = scene.camera;
-      PVector direction = new PVector(u*w, w/2, v*h).normalize();
+      PVector direction = new PVector(u*w, w/2, -v*h).normalize();
       Ray ray = new Ray(origin, direction);
       
       ArrayList<RayHit> hits = scene.root.intersect(ray);

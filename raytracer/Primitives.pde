@@ -20,14 +20,13 @@ class Sphere implements SceneObject
         RayHit entry = new RayHit();
         RayHit exit = new RayHit();
         
-        //println(material);
         //trying with dot product
         PVector cSubo = PVector.sub(center, r.origin);
-        //println(cSubo);
+
         float tp = cSubo.dot(r.direction);
-        //println(tp);
+
         float x = PVector.sub(PVector.add(r.origin, PVector.mult(r.direction, tp)), center).mag(); // x = |(o + tp*d - c)|
-        //println(r.direction);
+
         if(x < radius){
             entry.setT(tp - sqrt( pow(radius, 2) - pow(x, 2)));
             exit.setT(tp + sqrt( pow(radius, 2) - pow(x, 2)));
@@ -94,21 +93,25 @@ class Plane implements SceneObject
      
          
         //Finding t
-        PVector cminusr = PVector.sub(r.origin, center);
+        PVector cminusr = PVector.sub(center, r.origin); // i think this flips it?
+        //PVector cminusr = PVector.sub(r.origin, center);
         float multdir = cminusr.dot(normal);
         PVector planedir = r.direction;
         float denom = planedir.dot(normal); 
+        //float denom = normal.dot(planedir); 
         //determing if and where a ray y hits a plane
         float t = multdir/denom; 
+        
+        //this one is good
         PVector yoft = PVector.add(r.origin, PVector.mult(r.direction, t));
         entry.setT(t);
        
         entry.setL(yoft);
         if (multdir != 0){
-          entry.setE(true);
+          entry.setE(false);
         }
         else{
-          entry.setE(false);
+          entry.setE(true);
         }
         entry.setT(t);
         entry.setM(material);
@@ -124,8 +127,8 @@ class Plane implements SceneObject
         exit.setU(0.0);
         exit.setV(0.0);
           
-        if (t > 0){
-          if(denom < 0){
+        if (t < 0){
+          if(denom < 0){ // <
             result.add(exit);
             result.add(entry);
           }
@@ -159,12 +162,10 @@ class Triangle implements SceneObject
        this.tex1 = tex1;
        this.tex2 = tex2;
        this.tex3 = tex3;
-       this.normal = PVector.sub(v2, v1).cross(PVector.sub(v3, v1)).normalize();
+       //this.normal = PVector.sub(v2, v1).cross(PVector.sub(v3, v1)).normalize();
+       this.normal = PVector.sub(v3, v2).cross(PVector.sub(v1, v2)).normalize(); //not sure if this will make a difference?? :O
        this.material = material;
-       
-       // remove this line when you implement triangles
-       //throw new NotImplementedException("Triangles not implemented yet");
-    }
+           }
     
     float[] SameSide(PVector a, PVector b, PVector c, PVector p)
     {
@@ -236,6 +237,7 @@ class Triangle implements SceneObject
             exit.setU(0.0);
             exit.setV(0.0);
           } 
+          
           float[] uv = SameSide(v1, v2, v3, triyoft);
           float u = uv[0];
           float v = uv[1];
@@ -375,4 +377,3 @@ class HyperboloidTwoSheet implements SceneObject
         return result;
     }
 }
->>>>>>> d9f198ef36fa1eadad0bc8c4501832c5a1624cc8
