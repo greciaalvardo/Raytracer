@@ -18,8 +18,6 @@ class Union implements SceneObject
   Union(SceneObject[] children)
   {
     this.children = children;
-    // remove this line when you implement true unions
-    println("WARNING: Using 'fake' union");
   }
 
   ArrayList<RayHit> intersect(Ray r)
@@ -27,15 +25,32 @@ class Union implements SceneObject
      
      ArrayList<RayHit> hits = new ArrayList<RayHit>();
      
-     // Reminder: this is *not* a true union
-     // For a true union, you need to ensure that enter-
-     // and exit-hits alternate
      for (SceneObject sc : children)
      {
        hits.addAll(sc.intersect(r));
      }
      hits.sort(new HitCompare());
-     return hits;
+     
+     ArrayList<RayHit> union = new ArrayList<RayHit>();
+     int enter = 0;
+     for(RayHit hit : hits)
+     {
+       if(hit.entry == true)
+       {
+         if(enter == 0)
+         union.add(hit);
+         
+         enter++;
+       }
+       else if(hit.entry == false)
+       {
+         if(enter == 1)
+         union.add(hit);
+         
+         enter--;
+       }
+     }
+     return union;
   }
   
 }
@@ -47,16 +62,39 @@ class Intersection implements SceneObject
   {
     this.elements = elements;
     
-    // remove this line when you implement intersection
-    throw new NotImplementedException("CSG Operation: Intersection not implemented yet");
   }
-  
   
   ArrayList<RayHit> intersect(Ray r)
   {
      ArrayList<RayHit> hits = new ArrayList<RayHit>();
      
-     return hits;
+     for (SceneObject sc : elements)
+     {
+       hits.addAll(sc.intersect(r));
+     }
+     hits.sort(new HitCompare());
+     
+     ArrayList<RayHit> intersection = new ArrayList<RayHit>();
+     int enter = 0;
+     for(RayHit hit : hits)
+     {
+       if(hit.entry == true)
+       {
+         if(enter == elements.length-1)
+         intersection.add(hit);
+         
+         enter++;
+       }
+       else if(hit.entry == false)
+       {
+         if(enter == elements.length)
+         intersection.add(hit);
+         
+         enter--;
+       }
+     }
+     //return hits;
+     return intersection;
   }
   
 }
@@ -69,15 +107,43 @@ class Difference implements SceneObject
   {
     this.a = a;
     this.b = b;
-    
-    // remove this line when you implement difference
-    throw new NotImplementedException("CSG Operation: Difference not implemented yet");
   }
   
   ArrayList<RayHit> intersect(Ray r)
   {
      
-     return null;
+     ArrayList<RayHit> hitsA = new ArrayList<RayHit>();
+     ArrayList<RayHit> hitsB = new ArrayList<RayHit>();
+     
+
+       hitsA.addAll(a.intersect(r));
+       hitsB.addAll(b.intersect(r));
+       hitsA.sort(new HitCompare());
+       hitsB.sort(new HitCompare());
+     
+     ArrayList<RayHit> difference = new ArrayList<RayHit>();
+     boolean insideDifference = false;
+     for(int i=0; i<hitsA.size(); i++)
+     {
+       if(hitsA.get(i).entry==true && hitsB.get(i).entry==false)
+       {
+         difference.add(hitsA.get(i));
+         insideDifference = true;
+       }
+       if(hitsA.get(i).entry==false && hitsB.get(i).entry==false) // maybe also add if insideDifference
+       {
+         difference.add(hitsA.get(i));
+         insideDifference = false;
+       }
+       if(hitsA.get(i).entry==true && hitsB.get(i).entry==true)
+       {
+         hitsB.get(i).setE(false);
+         hitsB.get(i).setN(hitsB.get(i).normal.rotate(180)); //idk ab this one -- my attempt to flip
+         difference.add(hitsB.get(i));
+       }
+     }
+     //return hits;
+     return difference;
   }
   
 }
