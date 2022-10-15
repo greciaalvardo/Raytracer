@@ -1,5 +1,5 @@
-String input =  "data/tests/milestone1/test1.json";
-String output = "data/tests/milestone1/test1.png";
+String input =  "data/tests/milestone1/test3.json";
+String output = "data/tests/milestone1/test3.png";
 int repeat = 0;
 
 int iteration = 0;
@@ -119,8 +119,6 @@ class Ray
      PVector direction;
 }
 
-// TODO: Start in this class!
-// MILESTONE 1: Follow that one page and implement primitives.
 class RayTracer
 {
     Scene scene;  
@@ -135,20 +133,14 @@ class RayTracer
        this.scene = scene;
     }
     
-   // PVector origin = new PVector(0,0,0); //origin of the ray;
-    //PVector direction = new PVector(-260/2, 260/2, 0).normalize();
-   // Ray ray = new Ray(origin, direction);
-    
     color getColor(int x, int y) //this will return the color placed at pixel (x,y)
     {
       float w = 640;
       float h = 640;
       float u = x*1.0/w - 0.5;
       float v = (y*1.0/h - 0.5);
-      PVector origin = scene.camera; //ray origin? so (0,0,0)
-      //PVector origin2 = new PVector(0,0,0); //origin of the ray;
-      //PVector direction = new PVector(-260/2, 260/2, 0).normalize();
-      PVector direction = new PVector(u*w, w/2, v*h).normalize();
+      PVector origin = scene.camera;
+      PVector direction = new PVector(u*w, w/2, -v*h).normalize();
       Ray ray = new Ray(origin, direction);
       
       ArrayList<RayHit> hits = scene.root.intersect(ray);

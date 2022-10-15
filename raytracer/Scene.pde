@@ -7,6 +7,41 @@ class RayHit
      Material material;
      float u = 0,
            v = 0;
+           
+      void setT(float t)
+      {
+        this.t = t;
+      }
+      
+      void setL(PVector location)
+      {
+        this.location = location;
+      }
+      
+      void setN(PVector normal)
+      {
+        this.normal = normal;
+      }
+      
+      void setE(boolean entry)
+      {
+        this.entry = entry;
+      }
+      
+      void setM(Material material)
+      {
+        this.material = material;
+      }
+      
+      void setU(float u)
+      {
+        this.u = u;
+      }
+      
+      void setV(float v)
+      {
+        this.v = v;
+      }
 }
 interface SceneObject
 {
