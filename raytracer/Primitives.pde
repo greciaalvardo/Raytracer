@@ -126,16 +126,22 @@ class Plane implements SceneObject
         exit.setN(normal);
         exit.setU(0.0);
         exit.setV(0.0);
-          
-        if (t < 0){
-          if(denom < 0){ // <
-            result.add(exit);
-            result.add(entry);
-          }
+        
+        /*if (t < 0 && planedir.dot(normal) <= 0){
+         exit.setT(Float.POSITIVE_INFINITY);
+         result.add(exit);
+         //return result;
+        }*/
+        if (t < 0 && PVector.dot(r.direction, normal) == 0){
+         exit.setT(Float.POSITIVE_INFINITY);
+         result.add(exit);
+         //return result;
         }
-        else{
-          result.add(entry);
-          result.add(exit);
+        
+        
+       else if (t > 0 ){
+         result.add(entry);
+         //result.add(exit);
        }
       
         return result;
@@ -205,7 +211,7 @@ class Triangle implements SceneObject
     }
     
     ArrayList<RayHit> intersect(Ray r)
-    {
+    { 
         ArrayList<RayHit> result = new ArrayList<RayHit>();
         RayHit entry = new RayHit();
         RayHit exit = new RayHit();
@@ -238,14 +244,10 @@ class Triangle implements SceneObject
             exit.setV(0.0);
           } 
           
-          float[] uv = SameSide(v1, v2, v3, triyoft);
-          float u = uv[0];
-          float v = uv[1];
-          
           boolean pit = PointInTriangle(v1, v2, v3, triyoft);
           if(pit){
               result.add(entry);
-              result.add(exit);
+              //result.add(exit);
               return result;
           }
           
@@ -254,8 +256,7 @@ class Triangle implements SceneObject
         }
         return result;
           
-      }
-
+    }
 
 }
 

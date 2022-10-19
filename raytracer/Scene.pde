@@ -4,6 +4,7 @@ class RayHit
      PVector location;
      PVector normal;
      boolean entry;
+     boolean ina;
      Material material;
      float u = 0,
            v = 0;
@@ -41,6 +42,11 @@ class RayHit
       void setV(float v)
       {
         this.v = v;
+      }
+      
+      void setIA(boolean ina)
+      {
+         this.ina = ina; 
       }
 }
 interface SceneObject

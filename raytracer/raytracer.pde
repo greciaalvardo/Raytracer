@@ -1,5 +1,7 @@
-String input =  "data/tests/milestone1/test8.json";
-String output = "data/tests/milestone1/test8.png";
+String input =  "data/tests/milestone2/test5.json";
+String output = "data/tests/milestone2/test5.png";
+//String input =  "data/tests/submission1/test9.json";
+//String output = "data/tests/submission1/test9.png";
 int repeat = 0;
 
 int iteration = 0;
@@ -117,10 +119,14 @@ class Ray
      }
      PVector origin;
      PVector direction;
+ 
 }
 
+
+// TODO: Start in this class!
 class RayTracer
 {
+    
     Scene scene;  
     
     RayTracer(Scene scene)
@@ -132,19 +138,20 @@ class RayTracer
     {
        this.scene = scene;
     }
-    
-    color getColor(int x, int y) //this will return the color placed at pixel (x,y)
+   
+    color getColor(int x, int y)
     {
-      float w = 640;
-      float h = 640;
+      float w = width;
+      float h = height;
       float u = x*1.0/w - 0.5;
-      float v = (y*1.0/h - 0.5);
+      float v = -(y*1.0/h - 0.5);
       PVector origin = scene.camera;
-      PVector direction = new PVector(u*w, w/2, -v*h).normalize();
+      PVector direction = new PVector(u*w, w/2, v*h).normalize();
+
       Ray ray = new Ray(origin, direction);
-      
       ArrayList<RayHit> hits = scene.root.intersect(ray);
-      if (hits.size() > 0)
+       
+      if(hits.size() > 0)
       {
         return scene.lighting.getColor(hits.get(0), scene, ray.origin);
       }
@@ -162,3 +169,9 @@ class RayTracer
       //return this.scene.background;
     }
 }
+
+
+  
+  
+  
+  
