@@ -171,22 +171,63 @@ class Difference implements SceneObject
     this.b = b;
   }
   
+  
   ArrayList<RayHit> intersect(Ray r)
   {
-     
-     ArrayList<RayHit> hitsA = new ArrayList<RayHit>();
-     ArrayList<RayHit> hitsB = new ArrayList<RayHit>();
-     
-
-       hitsA.addAll(a.intersect(r));
-       hitsB.addAll(b.intersect(r));
-       hitsA.sort(new HitCompare());
-       hitsB.sort(new HitCompare());
-     
+     ArrayList<RayHit> hitisa = a.intersect(r);
+     ArrayList<RayHit> hitisb = b.intersect(r);
      ArrayList<RayHit> difference = new ArrayList<RayHit>();
-     //boolean insideDifference = false;
+     boolean ina = false;
+     boolean inb = false;
+     int a_ = 0;
+     int b_ = 0;
+     int in_a = 0;
+     int in_b = 0;
      
+     hitisa.addAll(a.intersect(r));
+     hitisb.addAll(b.intersect(r));
+     hitisa.sort(new HitCompare());
+     hitisb.sort(new HitCompare());
      
+     //counting the amount its in side a and b
+     for(int i = 0; i < hitisa.size(); i++){
+       if(hitisa.get(i).entry == true){
+         ina = true;
+         in_a++;
+       }
+       else{
+         ina = false;
+       }
+     }
+       
+     for(int j = 1; j < hitisb.size(); j++){
+      if(hitisb.get(j).entry == true){
+         inb = true; 
+         in_b++;
+       }
+       else{
+         inb = false;
+       }
+     }
+     
+    for (int k = 0; k < hitisa.size(); k++){
+      if(ina == true && inb == false){
+        if(a_ == k+1){
+          difference.add(hitisa.get(k));
+        }
+        a_++;
+      }
+      if(ina && !inb == true){
+        if(b_ == k+1){
+          hitisb.get(k).setE(false);
+          hitisb.get(k).setN(hitisb.get(k).normal.rotate(180));
+          difference.add(hitisb.get(k)); 
+        }
+        b_++; 
+      }
+    }
+    
+    
     /*
      for(int i=0; i<hitsA.size(); i++)
      {
