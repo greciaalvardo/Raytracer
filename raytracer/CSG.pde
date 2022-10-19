@@ -174,53 +174,57 @@ class Difference implements SceneObject
   
   ArrayList<RayHit> intersect(Ray r)
   {
-     ArrayList<RayHit> hitisa = a.intersect(r);
-     ArrayList<RayHit> hitisb = b.intersect(r);
+     ArrayList<RayHit> hitisa = new ArrayList <RayHit>();
+     ArrayList<RayHit> hitisb = new ArrayList <RayHit>();
      ArrayList<RayHit> difference = new ArrayList<RayHit>();
      boolean ina = false;
      boolean inb = false;
      int a_ = 0;
      int b_ = 0;
-     int in_a = 0;
-     int in_b = 0;
+     int in_a = hitisa.size();
+     int in_b = hitisb.size();
      
      hitisa.addAll(a.intersect(r));
      hitisb.addAll(b.intersect(r));
      hitisa.sort(new HitCompare());
      hitisb.sort(new HitCompare());
      
-     //counting the amount its in side a and b
+     boolean[] booleana = new boolean[hitisa.size()];
+     boolean[] booleanb = new boolean[hitisb.size()];
+     
+    //counting the amount its in side a and b
      for(int i = 0; i < hitisa.size(); i++){
+       
        if(hitisa.get(i).entry == true){
          ina = true;
-         in_a++;
        }
-       else{
+       else if(hitisa.get(i).entry == false){
          ina = false;
        }
-     }
-       
+       booleana[i] = ina;
+     } 
+     
      for(int j = 1; j < hitisb.size(); j++){
       if(hitisb.get(j).entry == true){
          inb = true; 
-         in_b++;
        }
        else{
          inb = false;
        }
+       booleanb[j] = inb;
      }
-     
-    for (int k = 0; k < hitisa.size(); k++){
-      if(ina == true && inb == false){
-        if(a_ == k+1){
+ 
+    for (int k = 0; k < a_+b_; k++){
+      if(booleana[k] == false && booleanb[k] == false){
+        if(booleana[k] == true && a_ == k+1){
           difference.add(hitisa.get(k));
         }
         a_++;
       }
-      if(ina && !inb == true){
-        if(b_ == k+1){
+      else if(booleana[k] == true && booleanb[k] == false){
+        if(booleana[k] == false && b_ == k+1){
           hitisb.get(k).setE(false);
-          hitisb.get(k).setN(hitisb.get(k).normal.rotate(180));
+          hitisb.get(k).setN(hitisb.get(k).normal.mult(-1));
           difference.add(hitisb.get(k)); 
         }
         b_++; 
