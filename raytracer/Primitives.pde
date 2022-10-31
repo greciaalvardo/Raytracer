@@ -100,53 +100,57 @@ class Plane implements SceneObject
         float denom = planedir.dot(normal); 
         //float denom = normal.dot(planedir); 
         //determing if and where a ray y hits a plane
-        float t = multdir/denom; 
-        
+        float t = multdir/denom;
         //this one is good
-        PVector yoft = PVector.add(r.origin, PVector.mult(r.direction, t));
-        entry.setT(t);
-       
-        entry.setL(yoft);
-        if (multdir != 0){
-          entry.setE(false);
-        }
-        else{
-          entry.setE(true);
-        }
+        PVector yoft = PVector.add(r.origin, PVector.mult(r.direction, entry.t));
         entry.setT(t);
         entry.setM(material);
-        entry.setN(normal);
         entry.setU(0.0);
         entry.setV(0.0);
-      
-        exit.setT(t);
-        exit.setL(yoft);
-        exit.setE(false);
         exit.setM(material);
-        exit.setN(normal);
         exit.setU(0.0);
         exit.setV(0.0);
         
-        /*if (t < 0 && planedir.dot(normal) <= 0){
-         exit.setT(Float.POSITIVE_INFINITY);
-         result.add(exit);
-         //return result;
-        }*/
-        if (t < 0 && PVector.dot(r.direction, normal) == 0){
-         exit.setT(Float.POSITIVE_INFINITY);
-         result.add(exit);
-         //return result;
+        if(denom == 0){
+          if(multdir <= 0){
+              entry.setT(Float.POSITIVE_INFINITY);
+              entry.setL(new PVector(0,0,0));
+              entry.setE(false);
+              result.add(entry);
+          }
+          return result;
         }
         
+        if(t < 0){
+          if(denom <= 0){
+              entry.setT(Float.POSITIVE_INFINITY);
+              entry.setL(new PVector(0,0,0));
+              entry.setE(false);
+              result.add(entry); 
+          }
+          return result;
+        }
         
-       else if (t > 0 ){
-         result.add(entry);
-         //result.add(exit);
-       }
-      
-        return result;
+        if(t > 0){
+          exit.setT(t);
+          entry.setN(normal);
+          entry.setL(yoft);
+          entry.setE(true);
+          
+          exit.setN(normal);
+          exit.setL(yoft);
+          exit.setE(false);
+          
+          if(multdir <= 0){
+             result.add(entry); 
+          }
+          else{
+             exit.setN(PVector.mult(normal, -1));
+             result.add(exit);
+          }
+        }
+      return result;
     }
-   
 }
 
 class Triangle implements SceneObject
