@@ -90,7 +90,7 @@ class Intersection implements SceneObject
      ArrayList<RayHit> hits = new ArrayList<RayHit>();
      int enter = 0;
      ArrayList<RayHit> childexithit = new ArrayList<RayHit>();
-     Boolean alternating = false;
+     
      for (SceneObject sc : elements)
      {
        //corner case
@@ -101,26 +101,12 @@ class Intersection implements SceneObject
             enter ++;
          }
        }
-       hits.addAll(sc.intersect(r));
+       hits.addAll(childexithit);
      }
      hits.sort(new HitCompare());
      
      ArrayList<RayHit> intersection = new ArrayList<RayHit>();
      
-     /*for(RayHit hit : hits)
-     {
-       if(enter == elements.length - 1){
-        if(enter == elements.length){
-          intersection.add(hit);
-          enter++;
-        }
-       }
-      else if(enter == elements.length){
-        intersection.add(hit);
-        enter--;
-       
-      }
-     }*/
      
      for(RayHit hit : hits)
      {
@@ -146,20 +132,11 @@ class Intersection implements SceneObject
        }
      }
      
-     //test for alternating 
-     /*for (int i = 0; i < intersection.size(); i++){
-       if(intersection.get(i).entry == true && intersection.get(i+1).entry == false){
-         alternating = true;
-         println(alternating);
-       }
-       else{
-        println("not"); 
-       }
-     }*/
      return intersection;
   }
   
 }
+
 
 class Difference implements SceneObject
 {
@@ -171,89 +148,158 @@ class Difference implements SceneObject
     this.b = b;
   }
   
-  
   ArrayList<RayHit> intersect(Ray r)
   {
-     ArrayList<RayHit> hitisa = new ArrayList <RayHit>();
-     ArrayList<RayHit> hitisb = new ArrayList <RayHit>();
+     ArrayList<RayHit> hitisa = new ArrayList<RayHit>();
+                       //hitisa = a.intersect(r);
+     ArrayList<RayHit> hitisb = new ArrayList<RayHit>();
+                       //hitisb = b.intersect(r);
      ArrayList<RayHit> difference = new ArrayList<RayHit>();
+     
+     
      boolean ina = false;
      boolean inb = false;
      int a_ = 0;
      int b_ = 0;
-     int in_a = hitisa.size();
-     int in_b = hitisb.size();
+     int in_a = 0;
+     int in_b = 0;
      
      hitisa.addAll(a.intersect(r));
      hitisb.addAll(b.intersect(r));
      hitisa.sort(new HitCompare());
      hitisb.sort(new HitCompare());
      
-     boolean[] booleana = new boolean[hitisa.size()];
-     boolean[] booleanb = new boolean[hitisb.size()];
+    
      
-    //counting the amount its in side a and b
-     for(int i = 0; i < hitisa.size(); i++){
-       
-       if(hitisa.get(i).entry == true){
+     for(RayHit hit : hitisa){
+       if(hit.entry == true){
          ina = true;
+         in_a++;
        }
-       else if(hitisa.get(i).entry == false){
+       else{
          ina = false;
        }
-       booleana[i] = ina;
-     } 
+     }
      
-     for(int j = 1; j < hitisb.size(); j++){
-      if(hitisb.get(j).entry == true){
+     
+     int j = 0;
+     for(RayHit hit : hitisb){
+       if(j>0)
+       {
+         if(hit.entry == true){
          inb = true; 
+         in_b++;
        }
        else{
          inb = false;
        }
-       booleanb[j] = inb;
+       }
+       j++;
      }
- 
-    for (int k = 0; k < a_+b_; k++){
-      if(booleana[k] == false && booleanb[k] == false){
-        if(booleana[k] == true && a_ == k+1){
+     
+
+    //int
+    for (int k = 0; k < hitisa.size(); k++){
+      if(ina == true && inb == false){
+        if(a_ == k+1){
           difference.add(hitisa.get(k));
         }
         a_++;
       }
-      else if(booleana[k] == true && booleanb[k] == false){
-        if(booleana[k] == false && b_ == k+1){
+      if(ina && !inb == true){
+        if(b_ == k+1){
           hitisb.get(k).setE(false);
-          hitisb.get(k).setN(hitisb.get(k).normal.mult(-1));
+          hitisb.get(k).setN(hitisb.get(k).normal.rotate(180));
           difference.add(hitisb.get(k)); 
         }
         b_++; 
       }
     }
     
-    
-    /*
-     for(int i=0; i<hitsA.size(); i++)
-     {
-       if(hitsA.get(i).entry==true && hitsB.get(i).entry==false)
+     
+      // latest attempt:
+     ArrayList<RayHit> aAndb = new ArrayList<RayHit>();
+     ArrayList<RayHit> diff = new ArrayList<RayHit>();
+     for(RayHit hit : hitisa){
+       hit.setIsObja(true);
+       aAndb.add(hit);
+     }
+     
+     for(RayHit hit : hitisb){
+       //println("test");
+       aAndb.add(hit);
+     }
+     aAndb.sort(new HitCompare());
+     
+     int counter = 0;
+     boolean aStart = false;
+     boolean bStart = false;
+     
+     boolean inA = false;
+     boolean inB = false;
+
+       for(RayHit hit : aAndb)
        {
-         difference.add(hitsA.get(i));
-         insideDifference = true;
+         if(counter == 0 && hit.isObja == true)
+         {
+           aStart = true;
+           diff.add(hit);
+           //inA = true;
+         }
+         else
+         {
+           bStart = true;
+           inB = true; //??
+         }
+           
+         if(counter > 0 && aStart)
+         {
+           if(hit.isObja == true)
+           {
+             diff.add(hit); // this one feels wrong but its not doing anything to the test case
+           }
+            if(hit.isObja == false)
+            {
+              if(hit.entry == true)
+              {
+                hit.setE(false);
+                hit.setN(PVector.mult(hit.normal, -1));
+                diff.add(hit); //hmm not doing anything so far
+               }
+            }
+         }
+         else if(counter > 0 && bStart)
+         {
+           if(hit.isObja == true && hit.entry == true)
+             inA = true;
+             
+           if(hit.isObja == true && hit.entry == false)
+             inA = false;
+             
+           if(hit.isObja == false && hit.entry == true)
+             inB = true;
+             
+           if(hit.isObja == false && hit.entry == false)
+             inB = false;
+             
+             if(inA == true && hit.isObja == false && hit.entry == false)
+             {
+               hit.setE(true);
+               hit.setN(PVector.mult(hit.normal, -1));
+               diff.add(hit);
+               inB = false;
+             }
+             
+             //if(inA == true && inb == false)
+               //diff.add(hit);
+             if(hit.isObja == true && hit.entry == false && inA == false) // this lines causing the black part
+             diff.add(hit);
+           
+         }
+           counter++;
        }
-       if(hitsA.get(i).entry==false && hitsB.get(i).entry==false) // maybe also add if insideDifference
-       {
-         difference.add(hitsA.get(i));
-         insideDifference = false;
-       }
-       if(hitsA.get(i).entry==true && hitsB.get(i).entry==true)
-       {
-         hitsB.get(i).setE(false);
-         hitsB.get(i).setN(hitsB.get(i).normal.rotate(180)); //idk ab this one -- my attempt to flip
-         difference.add(hitsB.get(i));
-       }
-     }*/
-     //return hits;
-     return difference;
+     
+     return diff;
   }
   
 }

@@ -5,6 +5,7 @@ class RayHit
      PVector normal;
      boolean entry;
      boolean ina;
+     boolean isObja = false;
      Material material;
      float u = 0,
            v = 0;
@@ -47,6 +48,11 @@ class RayHit
       void setIA(boolean ina)
       {
          this.ina = ina; 
+      }
+      
+      void setIsObja(boolean isObja)
+      {
+        this.isObja = isObja;
       }
 }
 interface SceneObject
