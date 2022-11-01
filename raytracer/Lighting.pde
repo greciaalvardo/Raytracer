@@ -57,10 +57,25 @@ class PhongLightingModel extends LightingModel
       this.ambient = ambient;
       
       // remove this line when you implement phong lighting
-      throw new NotImplementedException("Phong Lighting Model not implemented yet");
+      //throw new NotImplementedException("Phong Lighting Model not implemented yet");
     }
     color getColor(RayHit hit, Scene sc, PVector viewer)
     {
+      //ambient 
+       color c = hit.material.getColor(hit.u,hit.v);
+       color ambientterm = multColor(scaleColor(c, ambient), hit.material.properties.ka);
+       //diffuse & specular
+       PVector L;
+       PVector R;
+       PVector N = hit.normal;
+       //PVector V = ; idk how to find this yet 
+       for(int i = 0; i < lights.size(); i++){
+         
+         
+         
+       }
+       
+      
       return hit.material.getColor(hit.u, hit.v);
     }
   

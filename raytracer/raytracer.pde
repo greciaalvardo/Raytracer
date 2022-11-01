@@ -1,5 +1,5 @@
-String input =  "data/tests/milestone2/test7.json";
-String output = "data/tests/milestone2/test7.png";
+String input =  "data/tests/milestone3/test2.json";
+String output = "data/tests/milestone3/test2.png";
 //String input =  "data/tests/submission1/test9.json";
 //String output = "data/tests/submission1/test9.png";
 int repeat = 0;
@@ -156,8 +156,6 @@ class RayTracer
         return scene.lighting.getColor(hits.get(0), scene, ray.origin);
       }
       return scene.background;
-      // remove this line when you implement basic raytracing
-      //throw new NotImplementedException("Basic raytracing not implemented yet");
       
       /*if (scene.reflections > 0)
       {
