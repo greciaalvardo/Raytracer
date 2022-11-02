@@ -64,19 +64,62 @@ class PhongLightingModel extends LightingModel
       //ambient 
        color c = hit.material.getColor(hit.u,hit.v);
        color ambientterm = multColor(scaleColor(c, ambient), hit.material.properties.ka);
+      
        //diffuse & specular
        PVector L;
-       PVector R;
        PVector N = hit.normal;
-       //PVector V = ; idk how to find this yet 
+       color diffuse;
+       color initColor = color(0);
+       
+       PVector R;
+       PVector V;
+       color specular;
+       
+       color diffAndSpecSum = color(0);
+       
+       
        for(int i = 0; i < lights.size(); i++){
+         
+         //diffuse
+         L = lights.get(i).position.normalize(); //Lm
+         diffuse = multColor(scaleColor(c, lights.get(i).diffuse), hit.material.properties.kd * (L.dot(N))); // (lm.N)*id
+         diffuse = multColor(diffuse, hit.material.properties.kd); // kd * above^
+         
+         R = PVector.mult(PVector.sub(N, L), 2 * L.dot(N)).normalize();
+         //V = lights.get(i).position; //this ones wrong and throwing it off
+         //V = hit.location; //wrong
+         V = PVector.sub(lights.get(i).position, hit.location).normalize(); //this has been the closest so far
+         specular = multColor(scaleColor(c, lights.get(i).specular), pow(R.dot(V), hit.material.properties.alpha));
+         specular = multColor(specular, hit.material.properties.ks);
+         
+         // sum
+         if(i == 0)
+         {
+         diffAndSpecSum = addColors(diffuse, specular);
+         }
+         else if(i > 0)
+         {
+         diffAndSpecSum = addColors(diffAndSpecSum, diffuse);
+         diffAndSpecSum = addColors(diffAndSpecSum, specular);
+         }
+         
+         //these gave just ambient + diffuse
+         //if(i == 0)
+         //  initColor = diffuse;
+         
+         //if(i == 1)
+         //  diffAndSpecSum = addColors(initColor, diffuse);
+         
+         //if(i > 1)
+         //  diffAndSpecSum =  addColors(diffAndSpecSum, diffuse);
          
          
          
        }
        
       
-      return hit.material.getColor(hit.u, hit.v);
+      //return hit.material.getColor(hit.u, hit.v);
+      return addColors(ambientterm, diffAndSpecSum);
     }
   
 }
