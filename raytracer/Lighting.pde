@@ -99,7 +99,7 @@ class PhongLightingModel extends LightingModel
          //Shadow ray stuff
          if(withshadow){
            
-         Ray shadowRay = new Ray(V,L);
+         Ray shadowRay = new Ray(hit.location,L);
          shadows = sc.root.intersect(shadowRay);
          
          if(shadows.size() >0)
