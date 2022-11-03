@@ -72,23 +72,25 @@ class PhongLightingModel extends LightingModel
        color initColor = color(0);
        
        PVector R;
-       PVector V;
+       PVector V = PVector.sub(viewer, hit.location).normalize();;
        color specular;
-       
+       color shine;
        color diffAndSpecSum = color(0);
        
        
        for(int i = 0; i < lights.size(); i++){
          
          //diffuse
-         L = lights.get(i).position.normalize(); //Lm
+         L = lights.get(i).position;
+         L = PVector.sub(L, hit.location).normalize();
          diffuse = multColor(scaleColor(c, lights.get(i).diffuse), hit.material.properties.kd * (L.dot(N))); // (lm.N)*id
          diffuse = multColor(diffuse, hit.material.properties.kd); // kd * above^
          
-         R = PVector.mult(PVector.sub(N, L), 2 * L.dot(N)).normalize();
+         R = PVector.mult(N, (2 * PVector.dot(N,L)));
+         R = PVector.sub(R,L).normalize();
          //V = lights.get(i).position; //this ones wrong and throwing it off
          //V = hit.location; //wrong
-         V = PVector.sub(lights.get(i).position, hit.location).normalize(); //this has been the closest so far
+         //V = PVector.sub(lights.get(i).position, hit.location).normalize(); //this has been the closest so far
          specular = multColor(scaleColor(c, lights.get(i).specular), pow(R.dot(V), hit.material.properties.alpha));
          specular = multColor(specular, hit.material.properties.ks);
          
