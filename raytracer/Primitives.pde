@@ -45,6 +45,8 @@ class Sphere implements SceneObject
             exit.setU(0.0);
             exit.setV(0.0);
             
+            
+            //if(PVector.sub(r.origin, r.direction).mag() >EPS)
             if(entry.t > 0 && exit.t > 0)
             {
               if(entry.t > exit.t)

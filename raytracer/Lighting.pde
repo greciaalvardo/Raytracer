@@ -72,10 +72,11 @@ class PhongLightingModel extends LightingModel
        color initColor = color(0);
        
        PVector R;
-       PVector V = PVector.sub(viewer, hit.location).normalize();;
+       PVector V = PVector.sub(viewer, hit.location).normalize();
        color specular;
        color shine;
        color diffAndSpecSum = color(0);
+       ArrayList<RayHit> shadows;
        
        
        for(int i = 0; i < lights.size(); i++){
@@ -88,13 +89,22 @@ class PhongLightingModel extends LightingModel
          
          R = PVector.mult(N, (2 * PVector.dot(N,L)));
          R = PVector.sub(R,L).normalize();
-         //V = lights.get(i).position; //this ones wrong and throwing it off
-         //V = hit.location; //wrong
-         //V = PVector.sub(lights.get(i).position, hit.location).normalize(); //this has been the closest so far
          specular = multColor(scaleColor(c, lights.get(i).specular), pow(R.dot(V), hit.material.properties.alpha));
          specular = multColor(specular, hit.material.properties.ks);
          
+         //if(PVector.sub(hit.location,L).mag() > EPS)
+         //{
          // sum
+         
+         //Shadow ray stuff
+         if(withshadow){
+           
+         Ray shadowRay = new Ray(V,L);
+         shadows = sc.root.intersect(shadowRay);
+         
+         if(shadows.size() >0)
+         if(PVector.sub(lights.get(i).position, shadows.get(i).location).mag() > EPS)
+         //if(PVector.sub(shadows.get(i).location, lights.get(i).position).mag() > EPS)
          if(i == 0)
          {
          diffAndSpecSum = addColors(diffuse, specular);
@@ -103,24 +113,25 @@ class PhongLightingModel extends LightingModel
          {
          diffAndSpecSum = addColors(diffAndSpecSum, diffuse);
          diffAndSpecSum = addColors(diffAndSpecSum, specular);
+         } 
+         
          }
-         
-         //these gave just ambient + diffuse
-         //if(i == 0)
-         //  initColor = diffuse;
-         
-         //if(i == 1)
-         //  diffAndSpecSum = addColors(initColor, diffuse);
-         
-         //if(i > 1)
-         //  diffAndSpecSum =  addColors(diffAndSpecSum, diffuse);
-         
-         
+         else
+         {
+           if(i == 0)
+         {
+         diffAndSpecSum = addColors(diffuse, specular);
+         }
+         else if(i > 0)
+         {
+         diffAndSpecSum = addColors(diffAndSpecSum, diffuse);
+         diffAndSpecSum = addColors(diffAndSpecSum, specular);
+         } 
+         }
+
          
        }
        
-      
-      //return hit.material.getColor(hit.u, hit.v);
       return addColors(ambientterm, diffAndSpecSum);
     }
   
