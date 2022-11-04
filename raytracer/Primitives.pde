@@ -45,8 +45,6 @@ class Sphere implements SceneObject
             exit.setU(0.0);
             exit.setV(0.0);
             
-            
-            //if(tp >EPS)
             if(entry.t > 0 && exit.t > 0)
             {
               if(entry.t > exit.t)
@@ -117,6 +115,7 @@ class Plane implements SceneObject
           if(multdir <= 0){
               entry.setT(Float.POSITIVE_INFINITY);
               entry.setL(new PVector(0,0,0));
+              entry.setN(normal);
               entry.setE(false);
               result.add(entry);
           }
@@ -127,6 +126,7 @@ class Plane implements SceneObject
           if(denom <= 0){
               entry.setT(Float.POSITIVE_INFINITY);
               entry.setL(new PVector(0,0,0));
+              entry.setN(normal);
               entry.setE(false);
               result.add(entry); 
           }

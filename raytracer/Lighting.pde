@@ -70,14 +70,13 @@ class PhongLightingModel extends LightingModel
        PVector R;
        PVector V = PVector.sub(viewer, hit.location).normalize();
        color specular;
-       color shine;
        color diffAndSpecSum = color(0);
        ArrayList<RayHit> shadows = new ArrayList<RayHit>();
-       
-       
+       //ArrayList<RayHit> shadows2 = new ArrayList<RayHit>();
        for(int i = 0; i < lights.size(); i++){
          
          //diffuse
+   
          L = lights.get(i).position;
          L = PVector.sub(L, hit.location).normalize();
          diffuse = multColor(scaleColor(c, lights.get(i).diffuse), hit.material.properties.kd * (L.dot(N))); // (lm.N)*id
@@ -88,29 +87,26 @@ class PhongLightingModel extends LightingModel
          specular = multColor(scaleColor(c, lights.get(i).specular), pow(R.dot(V), hit.material.properties.alpha));
          specular = multColor(specular, hit.material.properties.ks);
          
-         
-         //Shadow ray stuff
-         if(withshadow)
+         PVector Ln = PVector.mult(L, -1);
+         //Shadow ray stuff 
+         Ray shadowRay = new Ray(PVector.add(hit.location, PVector.mult(Ln,EPS)),L);  //didn't multiply by negative this time bc shadow ray and light ray face the same way i think
+         shadows = sc.root.intersect(shadowRay);
+         if(withshadow && shadows.size() > 0)
          {
-           Ray shadowRay = new Ray(PVector.add(hit.location, PVector.mult(L,EPS)),L); //didn't multiply by negative this time bc shadow ray and light ray face the same way i think
-           shadows = sc.root.intersect(shadowRay);
-
-           if(shadows.size() > 0)
+           /*if( PVector.sub(shadows.get(i).location,hit.location).mag() < PVector.sub(lights.get(i).position, hit.location).mag())
            {
-             //            distance shadowhit -> object                     distance light -> object
-             if(PVector.sub(shadows.get(0).location,hit.location).mag() < PVector.sub(lights.get(i).position, hit.location).mag())
-             {
-               diffAndSpecSum = addColors(diffAndSpecSum, diffuse);
-               diffAndSpecSum = addColors(diffAndSpecSum, specular);
+             Ray shadowRay2 = new Ray(PVector.mult(hit.location,-1), PVector.mult(L,-1));
+             shadows2 = sc.root.intersect(shadowRay2);
+           }*/
+           
+             continue;
+         }
+   
          
-             }
-           }
-         }
-         else
-         {
-           diffAndSpecSum = addColors(diffAndSpecSum, diffuse);
-           diffAndSpecSum = addColors(diffAndSpecSum, specular);
-         }
+         
+          diffAndSpecSum = addColors(diffAndSpecSum, diffuse);
+          diffAndSpecSum = addColors(diffAndSpecSum, specular);
+         
        }
        
       return addColors(ambientterm, diffAndSpecSum);
