@@ -1,5 +1,5 @@
-String input =  "data/tests/milestone3/test5.json";
-String output = "data/tests/milestone3/test5.png";
+String input =  "data/tests/milestone3/test9.json";
+String output = "data/tests/milestone3/tes9.png";
 //String input =  "data/tests/submission1/test9.json";
 //String output = "data/tests/submission1/test9.png";
 int repeat = 0;
@@ -150,6 +150,42 @@ class RayTracer
 
       Ray ray = new Ray(origin, direction);
       ArrayList<RayHit> hits = scene.root.intersect(ray);
+      
+      if (scene.reflections > 0)
+      {
+        while(hits.get(0).material.properties.reflectiveness > 0){ //im confused bc would this come after the intersect method in line 175 :(( just a thought im prob wrong
+          //as said in project description, the method we used in phone lighting is what we use to find Phong lighting
+          PVector N = hits.get(0).normal;
+          PVector V = PVector.sub(ray.origin, hits.get(0).location).normalize();
+          
+          //PVector L = hits.get(0).scene.lighting.lights.position;//i keep getting errors tryna use stuff from lighting -- i think bc the rayhit class doesnt have a scene object
+          PVector L = scene.lighting.lights.get(0).position;
+                  L = PVector.sub(L, hits.get(0).location).normalize();
+          
+          PVector R = PVector.mult(N, (2 * PVector.dot(N,L)));
+                  R = PVector.sub(R,L).normalize();
+          
+          PVector Q = PVector.mult(R,-1);
+          float dotprod = Q.dot(N);
+                dotprod = 2* dotprod;
+                  Q = PVector.mult(N, dotprod);
+                  Q = PVector.add(Q, R);
+
+          Ray reflectr = new Ray(PVector.add(origin, PVector.mult(Q,EPS)), L); //put Q instead of direction not sure if it's right
+          ArrayList<RayHit> rhits = scene.root.intersect(reflectr);
+          
+          
+          //if perfect mirror, reflectiveness = 1
+          if(hits.get(0).material.properties.reflectiveness == 1){
+            //return the calculated reflected ray
+          }
+          else{
+           //combine the surface colors and the result of the reflection ray; use lerp color 
+          }
+          
+        }
+        
+      }
        
       if(hits.size() > 0)
       {
@@ -162,6 +198,8 @@ class RayTracer
           // remove this line when you implement reflection
           throw new NotImplementedException("Reflection not implemented yet");
       }*/
+      
+     
       
       /// this will be the fallback case
       //return this.scene.background;

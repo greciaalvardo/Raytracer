@@ -55,9 +55,6 @@ class PhongLightingModel extends LightingModel
       super(lights);
       this.withshadow = withshadow;
       this.ambient = ambient;
-      
-      // remove this line when you implement phong lighting
-      //throw new NotImplementedException("Phong Lighting Model not implemented yet");
     }
     color getColor(RayHit hit, Scene sc, PVector viewer)
     {
@@ -69,14 +66,13 @@ class PhongLightingModel extends LightingModel
        PVector L;
        PVector N = hit.normal;
        color diffuse;
-       color initColor = color(0);
        
        PVector R;
        PVector V = PVector.sub(viewer, hit.location).normalize();
        color specular;
        color shine;
        color diffAndSpecSum = color(0);
-       ArrayList<RayHit> shadows;
+       ArrayList<RayHit> shadows = new ArrayList<RayHit>();
        
        
        for(int i = 0; i < lights.size(); i++){
@@ -92,47 +88,38 @@ class PhongLightingModel extends LightingModel
          specular = multColor(scaleColor(c, lights.get(i).specular), pow(R.dot(V), hit.material.properties.alpha));
          specular = multColor(specular, hit.material.properties.ks);
          
-         //if(PVector.sub(hit.location,L).mag() > EPS)
-         //{
-         // sum
          
          //Shadow ray stuff
-         if(withshadow){
-           
-         Ray shadowRay = new Ray(hit.location,L);
-         shadows = sc.root.intersect(shadowRay);
-         
-         if(shadows.size() >0)
-         if(PVector.sub(lights.get(i).position, shadows.get(i).location).mag() > EPS)
-         //if(PVector.sub(shadows.get(i).location, lights.get(i).position).mag() > EPS)
-         if(i == 0)
+         if(withshadow)
          {
-         diffAndSpecSum = addColors(diffuse, specular);
-         }
-         else if(i > 0)
-         {
-         diffAndSpecSum = addColors(diffAndSpecSum, diffuse);
-         diffAndSpecSum = addColors(diffAndSpecSum, specular);
-         } 
+           Ray shadowRay = new Ray(PVector.add(hit.location, PVector.mult(L,EPS)),L); //didn't multiply by negative this time bc shadow ray and light ray face the same way i think
+           shadows = sc.root.intersect(shadowRay);
+
+           if(shadows.size() > 0)
+           {
+             //            distance shadowhit -> object                     distance light -> object
+             if(PVector.sub(shadows.get(0).location,hit.location).mag() < PVector.sub(lights.get(i).position, hit.location).mag())
+             {
+               diffAndSpecSum = addColors(diffAndSpecSum, diffuse);
+               diffAndSpecSum = addColors(diffAndSpecSum, specular);
          
+             }
+           }
          }
          else
          {
-           if(i == 0)
-         {
-         diffAndSpecSum = addColors(diffuse, specular);
+           diffAndSpecSum = addColors(diffAndSpecSum, diffuse);
+           diffAndSpecSum = addColors(diffAndSpecSum, specular);
          }
-         else if(i > 0)
-         {
-         diffAndSpecSum = addColors(diffAndSpecSum, diffuse);
-         diffAndSpecSum = addColors(diffAndSpecSum, specular);
-         } 
-         }
-
-         
        }
        
       return addColors(ambientterm, diffAndSpecSum);
     }
   
 }
+
+             //if(shadows.get(0).location.dot(hit.location) > L.dot(hit.location))
+             //if(lights.get(i).position.mag() > shadows.get(0).location.mag()){ //this ones weird, adds shadows in weird places
+             //if(PVector.sub(lights.get(i).position, shadows.get(0).location).mag() > EPS){
+             //if(shadows.get(0).location.mag() > EPS){
+             //if(shadows.get(0).t < lights.get(i).position.mag()){
