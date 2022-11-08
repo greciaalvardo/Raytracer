@@ -32,11 +32,11 @@ class Union implements SceneObject
        //corner case
        childexithit = sc.intersect(r);
        //println(childexithit);
-       if(childexithit.size() > 0){
+      /** if(childexithit.size() > 0){
          if(childexithit.get(0).entry == false){
             enter ++;
          }
-       }
+       } */
        hits.addAll(sc.intersect(r));
      }
      hits.sort(new HitCompare());

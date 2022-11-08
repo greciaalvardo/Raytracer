@@ -100,7 +100,7 @@ class Plane implements SceneObject
 
         //determing if and where a ray y hits a plane
         float t = multdir/denom;
-        PVector yoft = PVector.add(r.origin, PVector.mult(r.direction, entry.t));
+        PVector yoft = PVector.add(r.origin, PVector.mult(r.direction, t));
         
         entry.setT(t);
         entry.setM(material);
@@ -125,7 +125,7 @@ class Plane implements SceneObject
         {
         
         if(t < 0){
-          if(denom <= 0){
+          if(denom < 0){
               entry.setT(Float.POSITIVE_INFINITY);
               entry.setL(new PVector(0,0,0));
               entry.setN(normal);
@@ -136,7 +136,25 @@ class Plane implements SceneObject
         } 
         
         if(t > 0){
-          exit.setT(t);
+          
+          if(denom < 0)
+          {
+            entry.setT(t);
+            entry.setN(normal);
+            entry.setL(yoft);
+            entry.setE(true);
+            result.add(entry);
+          }
+          else if (denom > 0)
+          {
+            exit.setT(t);
+             exit.setN(normal);
+          exit.setL(yoft);
+          exit.setE(false);
+          result.add(exit);
+          }
+          
+        /**  exit.setT(t);
           entry.setN(normal);
           entry.setL(yoft);
           entry.setE(true);
@@ -147,11 +165,11 @@ class Plane implements SceneObject
           
           if(multdir <= 0){
              result.add(entry); 
-          }
-          else{
-             exit.setN(PVector.mult(normal, -1));
-             result.add(exit);
-          }
+          } */
+          //else{
+           //  exit.setN(PVector.mult(normal, -1));
+           //  result.add(exit);
+         // }
         }
         }
       return result;

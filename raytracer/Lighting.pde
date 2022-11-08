@@ -89,7 +89,7 @@ class PhongLightingModel extends LightingModel
          
          PVector Ln = PVector.mult(L, -1);
          //Shadow ray stuff 
-         Ray shadowRay = new Ray(PVector.add(hit.location, PVector.mult(Ln,EPS)),L);  //didn't multiply by negative this time bc shadow ray and light ray face the same way i think
+         Ray shadowRay = new Ray(PVector.add(hit.location, PVector.mult(L,EPS)),L);  //didn't multiply by negative this time bc shadow ray and light ray face the same way i think
          shadows = sc.root.intersect(shadowRay);
         
          if(withshadow)
