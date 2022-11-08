@@ -72,15 +72,15 @@ class PhongLightingModel extends LightingModel
        color specular;
        color diffAndSpecSum = color(0);
        ArrayList<RayHit> shadows = new ArrayList<RayHit>();
-       //ArrayList<RayHit> shadows2 = new ArrayList<RayHit>();
+
+
        for(int i = 0; i < lights.size(); i++){
          
          //diffuse
-   
          L = lights.get(i).position;
          L = PVector.sub(L, hit.location).normalize();
          diffuse = multColor(scaleColor(c, lights.get(i).diffuse), hit.material.properties.kd * (L.dot(N))); // (lm.N)*id
-         diffuse = multColor(diffuse, hit.material.properties.kd); // kd * above^
+         //diffuse = multColor(diffuse, hit.material.properties.kd); // kd * above^
          
          R = PVector.mult(N, (2 * PVector.dot(N,L)));
          R = PVector.sub(R,L).normalize();
@@ -91,25 +91,33 @@ class PhongLightingModel extends LightingModel
          //Shadow ray stuff 
          Ray shadowRay = new Ray(PVector.add(hit.location, PVector.mult(Ln,EPS)),L);  //didn't multiply by negative this time bc shadow ray and light ray face the same way i think
          shadows = sc.root.intersect(shadowRay);
-         if(withshadow && shadows.size() > 0)
-         {
-           /*if( PVector.sub(shadows.get(i).location,hit.location).mag() < PVector.sub(lights.get(i).position, hit.location).mag())
+        
+         if(withshadow)
+         {       
+           if(shadows.size() == 0)
            {
-             Ray shadowRay2 = new Ray(PVector.mult(hit.location,-1), PVector.mult(L,-1));
-             shadows2 = sc.root.intersect(shadowRay2);
-           }*/
-           
+             diffAndSpecSum = addColors(diffAndSpecSum, diffuse);
+             diffAndSpecSum = addColors(diffAndSpecSum, specular);
+           }
+           else if(shadows.size() > 0 && PVector.sub(shadows.get(0).location,hit.location).mag() > PVector.sub(lights.get(i).position, hit.location).mag())
+           {
+             diffAndSpecSum = addColors(diffAndSpecSum, diffuse);
+             diffAndSpecSum = addColors(diffAndSpecSum, specular);
+           }
+           else
              continue;
          }
-   
+         else if(!withshadow)
+         {
+            diffAndSpecSum = addColors(diffAndSpecSum, diffuse);
+            diffAndSpecSum = addColors(diffAndSpecSum, specular);
+         }
          
-         
-          diffAndSpecSum = addColors(diffAndSpecSum, diffuse);
-          diffAndSpecSum = addColors(diffAndSpecSum, specular);
-         
+          
        }
        
       return addColors(ambientterm, diffAndSpecSum);
+      
     }
   
 }

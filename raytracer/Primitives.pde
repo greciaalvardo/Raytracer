@@ -93,16 +93,15 @@ class Plane implements SceneObject
      
          
         //Finding t
-        PVector cminusr = PVector.sub(center, r.origin); // i think this flips it?
-        //PVector cminusr = PVector.sub(r.origin, center);
+        PVector cminusr = PVector.sub(center, r.origin);
         float multdir = cminusr.dot(normal);
         PVector planedir = r.direction;
         float denom = planedir.dot(normal); 
-        //float denom = normal.dot(planedir); 
+
         //determing if and where a ray y hits a plane
         float t = multdir/denom;
-        //this one is good
         PVector yoft = PVector.add(r.origin, PVector.mult(r.direction, entry.t));
+        
         entry.setT(t);
         entry.setM(material);
         entry.setU(0.0);
@@ -111,16 +110,19 @@ class Plane implements SceneObject
         exit.setU(0.0);
         exit.setV(0.0);
         
+        // orthogonal, will never hit sphere
         if(denom == 0){
-          if(multdir <= 0){
+         /** if(multdir <= 0){
               entry.setT(Float.POSITIVE_INFINITY);
               entry.setL(new PVector(0,0,0));
               entry.setN(normal);
               entry.setE(false);
               result.add(entry);
-          }
+          } */
           return result;
         }
+        else
+        {
         
         if(t < 0){
           if(denom <= 0){
@@ -131,7 +133,7 @@ class Plane implements SceneObject
               result.add(entry); 
           }
           return result;
-        }
+        } 
         
         if(t > 0){
           exit.setT(t);
@@ -150,6 +152,7 @@ class Plane implements SceneObject
              exit.setN(PVector.mult(normal, -1));
              result.add(exit);
           }
+        }
         }
       return result;
     }
