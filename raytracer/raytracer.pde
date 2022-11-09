@@ -1,5 +1,5 @@
-String input =  "data/tests/milestone3/test9.json";
-String output = "data/tests/milestone3/test9.png";
+String input =  "data/tests/milestone3/test12.json";
+String output = "data/tests/milestone3/test12.png";
 //String input =  "data/tests/submission1/test9.json";
 //String output = "data/tests/submission1/test9.png";
 int repeat = 0;
@@ -217,11 +217,13 @@ class RayTracer
       Ray ray = new Ray(origin, direction);
       ArrayList<RayHit> hits = scene.root.intersect(ray);
       print(hits.size());
+      if(hits.size()>0)
       if (scene.reflections > 0)
       {
         //while(hits.get(0).material.properties.reflectiveness > 0){ //im confused bc would this come after the intersect method in line 175 :(( just a thought im prob wrong
           //as said in project description, the method we used in phone lighting is what we use to find Phong lighting
           //if(hits.size() >0)
+          print(hits.size());
           PVector N = hits.get(0).normal;
           PVector V = PVector.sub(ray.origin, hits.get(0).location).normalize();
           
@@ -240,10 +242,10 @@ class RayTracer
 
           Ray reflectr = new Ray(PVector.add(origin, PVector.mult(Q,EPS)), L); //put Q instead of direction not sure if it's right
   
-          for(RayHit hit : hits)
-          {
-            hit.material.col = shootRay(reflectr);
-          }
+          //for(RayHit hit : hits)
+          //{
+          //  hit.material.col = shootRay(reflectr);
+         // }
 
          ArrayList<RayHit> rhits = scene.root.intersect(reflectr);
           
@@ -278,10 +280,11 @@ class RayTracer
     
     color getReflectionColor(color oldColor, Ray reflection, ArrayList<RayHit> hits, ArrayList<RayHit> rhits, int depth)
     {
+      color newColor = oldColor;
       
       // Base case
       if(depth <= 0)
-        return oldColor;
+        return newColor;
         
         PVector N = hits.get(0).normal;
           PVector V = PVector.sub(reflection.origin, hits.get(0).location).normalize();
@@ -291,7 +294,7 @@ class RayTracer
                   L = PVector.sub(L, hits.get(0).location).normalize();
           
           PVector R = PVector.mult(N, (2 * PVector.dot(N,L)));
-                  R = PVector.sub(R,L).normalize();
+                  R = PVector.sub(R,L).normalize(); //v?? instead of l??
           
           PVector Q = PVector.mult(R,-1);
           float dotprod = Q.dot(N);
@@ -302,8 +305,9 @@ class RayTracer
           Ray reflectr = new Ray(PVector.add(reflection.origin, PVector.mult(Q,EPS)), L); //put Q instead of direction not sure if it's right
           ArrayList<RayHit> newRhits = scene.root.intersect(reflectr);
           
-          color newColor = 0;
+          //color newColor = 0;
           //color newColor = lerpcolor(old + newcolor)???
+          newColor = lerpColor(oldColor, scene.lighting.getColor(hits.get(0), scene, reflectr.origin), hits.get(0).material.properties.reflectiveness);
           
           return getReflectionColor(newColor, reflectr, rhits, newRhits, depth-1);
           

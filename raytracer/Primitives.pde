@@ -106,7 +106,9 @@ class Plane implements SceneObject
         entry.setM(material);
         entry.setU(0.0);
         entry.setV(0.0);
+        entry.setN(normal);
         exit.setM(material);
+        exit.setN(normal);
         exit.setU(0.0);
         exit.setV(0.0);
         

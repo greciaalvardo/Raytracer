@@ -58,7 +58,7 @@ class PhongLightingModel extends LightingModel
     }
     color getColor(RayHit hit, Scene sc, PVector viewer)
     {
-      //ambient 
+      ///ambient 
        color c = hit.material.getColor(hit.u,hit.v);
        color ambientterm = multColor(scaleColor(c, ambient), hit.material.properties.ka);
       
