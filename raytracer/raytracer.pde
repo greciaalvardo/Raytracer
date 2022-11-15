@@ -1,5 +1,5 @@
-String input =  "data/tests/milestone3/test10.json";
-String output = "data/tests/milestone3/test10.png";
+String input =  "data/tests/milestone2/test7.json";
+String output = "data/tests/milestone2/test7.png";
 //String input =  "data/tests/submission1/test9.json";
 //String output = "data/tests/submission1/test9.png";
 int repeat = 0;
@@ -147,7 +147,6 @@ class RayTracer
       float v = -(y*1.0/h - 0.5);
       PVector origin = scene.camera;
       PVector direction = new PVector(u*w, w/2, v*h).normalize();
-
       Ray ray = new Ray(origin, direction);
       ArrayList<RayHit> hits = scene.root.intersect(ray);
       
@@ -170,7 +169,6 @@ class RayTracer
                 dotprod = 2* dotprod;
                   Q = PVector.mult(N, dotprod);
                   Q = PVector.add(Q, R);
-
           Ray reflectr = new Ray(PVector.add(origin, PVector.mult(Q,EPS)), L); //put Q instead of direction not sure if it's right
           ArrayList<RayHit> rhits = scene.root.intersect(reflectr);
           
@@ -289,7 +287,7 @@ class RayTracer
         
         if(hits.size()>0){
           print("hmm");
-        PVector N = hits.get(0).normal;
+          PVector N = hits.get(0).normal;
           PVector V = PVector.sub(reflection.origin, hits.get(0).location).normalize();
           
           //PVector L = hits.get(0).scene.lighting.lights.position;//i keep getting errors tryna use stuff from lighting -- i think bc the rayhit class doesnt have a scene object
@@ -334,9 +332,3 @@ class RayTracer
       
     }
 }
-
-
-  
-  
-  
-  

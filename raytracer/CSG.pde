@@ -151,262 +151,85 @@ class Difference implements SceneObject
   ArrayList<RayHit> intersect(Ray r)
   {
      ArrayList<RayHit> hitisa = new ArrayList<RayHit>();
-                       //hitisa = a.intersect(r);
      ArrayList<RayHit> hitisb = new ArrayList<RayHit>();
-                       //hitisb = b.intersect(r);
-     ArrayList<RayHit> difference = new ArrayList<RayHit>();
-     
-     
-     boolean ina = false;
-     boolean inb = false;
-     int a_ = 0;
-     int b_ = 0;
-     int in_a = 0;
-     int in_b = 0;
-     
+     RayHit safecopy = new RayHit();
+     ArrayList<RayHit> aAndb = new ArrayList<RayHit>();
+     ArrayList<RayHit> diff = new ArrayList<RayHit>();
+     boolean inA = false;
+     boolean inB = false;
      hitisa.addAll(a.intersect(r));
      hitisb.addAll(b.intersect(r));
      hitisa.sort(new HitCompare());
      hitisb.sort(new HitCompare());
      
-     
-    
-     
      for(RayHit hit : hitisa){
-       if(hit.entry == true){
-         ina = true;
-         in_a++;
+       if(hitisa.get(0).entry == false){
+         inA = true;
        }
        else{
-         ina = false;
+         inA = false;
        }
-     }
-     
-     
-     int j = 0;
-     for(RayHit hit : hitisb){
-       if(j>0)
-       {
-         if(hit.entry == true){
-         inb = true; 
-         in_b++;
-       }
-       else{
-         inb = false;
-       }
-       }
-       j++;
-     }
-     
-
-    //int
-    for (int k = 0; k < hitisa.size(); k++){
-      if(ina == true && inb == false){
-        if(a_ == k+1){
-          difference.add(hitisa.get(k));
-        }
-        a_++;
-      }
-      if(ina && !inb == true){
-        if(b_ == k+1){
-          hitisb.get(k).setE(false);
-          hitisb.get(k).setN(hitisb.get(k).normal.rotate(180));
-          difference.add(hitisb.get(k)); 
-        }
-        b_++; 
-      }
-    }
-    
-     
-      // latest attempt:
-     ArrayList<RayHit> aAndb = new ArrayList<RayHit>();
-     ArrayList<RayHit> diff = new ArrayList<RayHit>();
-     for(RayHit hit : hitisa){
        hit.setIsObja(true);
        aAndb.add(hit);
      }
      
      for(RayHit hit : hitisb){
-       //println("test");
+       if(hitisb.get(0).entry == false){
+         inB = true;
+       }
+       else{
+         inB = false; 
+       }
+       hit.setIsObja(false);
        aAndb.add(hit);
      }
+     
      aAndb.sort(new HitCompare());
      
-     int counter = 0;
-     boolean aStart = false;
-     boolean bStart = false;
-     
-     boolean inA = false;
-     boolean inB = false;
-     
-     int aCount = 0;
-     int bCount = 0;
-     RayHit safecopy;
-
-       for(RayHit hit : aAndb)
-       {
-         if(counter == 0 && hit.isObja == true)
-         {
+     for(RayHit hit : aAndb){
+       if(hit.entry == false){
+         if(inA && inB){
+           if(hit.isObja){
+              inA = false; 
+           }
+           else{
+              safecopy = hit; 
+              safecopy.setE(false);
+              safecopy.setN(PVector.mult(safecopy.normal, -1));
+              diff.add(safecopy);
+              inB = false;
+           }
+         }
+         else if(inA && !inB){
            diff.add(hit);
-           
-           if(hit.entry == false) //started inside of a
-           inA = true;
-
-         }
-         else if(counter == 0 && hit.isObja == false)
-         {
-           
-           if(hit.entry ==false) //started inside of b
-           inB = true; //??
-         }
-           
-        /** if(counter > 0)
-         {
-           if(hit.isObja == true)
-           {
-             diff.add(hit); // this one feels wrong but its not doing anything to the test case
-           }
-            if(hit.isObja == false)
-            {
-              if(hit.entry == true)
-              {
-                safecopy = hit;
-                inA = true;
-                safecopy.setE(false);
-                safecopy.setN(PVector.mult(safecopy.normal, -1));
-                diff.add(hit); //hmm not doing anything so far
-               }
-            }
-         } */
-         if(counter > 0)
-         {
-           if(hit.isObja == true && hit.entry == true) // if you add a hit here, entire red appears?? hmm
-             inA = true;
-             
-             
-           if(hit.isObja == true && hit.entry == false) //if you add a hit here, the black appears
-             inA = false;
-             
-           if(hit.isObja == false && hit.entry == true) //if you add a hit here, unecessary b appears
-             inB = true;
-             
-           if(hit.isObja == false && hit.entry == false) //if you add a hit here, unecessary b appears too
-             inB = false;
-             
-             
-             if(inA == true && hit.isObja == false && hit.entry == false)
-             {
-               safecopy = hit;
-               safecopy.setE(true);
-               safecopy.setN(PVector.mult(safecopy.normal, -1));
-               diff.add(hit); //if you dont add this, none of b appears
-               inB = false;
-             }
-             
-             //if(hit.isObja)
-             if(inA == true && inb == false) //somewhere here either makes the entire red sphere appear or the half disappear
-             {
-               if(hit.entry == false)
-               {
-               diff.add(hit); //does nothing it seems
-               inA = false;
-               }
-             }
-             //if(hit.isObja == true && hit.entry == false && inA == false) // this lines causing the black part
-             //diff.add(hit);
-           
-         } 
-           counter++;
-       }
-       
-     /**  RayHit safecopy;
-       
-       // this one didn't make anything appear :(((
-       for(RayHit hit : aAndb)
-       {
-         
-         if(aCount == hitisa.size())
            inA = false;
-         else if(bCount == hitisb.size())
-           inB = false;
-           
-         if(counter == 0 && hit.isObja == true)
-         {
-            
-           aCount++;
-           if(hit.entry == false)
-           inA = true; //we started in a
-
          }
-         else if(counter == 0 && hit.isObja == false)
-         {
-           bCount++;
-           if(hit.entry ==false)
-           inB = true; //we started in b
+         else{
+           inB = false; 
          }
-           
-         if(counter > 0)
-         {
-           if(hit.entry == false)
-           {
-           if(inA == true && inb == true)
-           {
-             if(hit.isObja == true && hit.entry == false)
-             {
-               inA = false;
-               counter++;
-               continue;
-             }
-             
-             safecopy = hit;
-             safecopy.setE(false);
-             safecopy.setN(PVector.mult(hit.normal, -1));
-             diff.add(safecopy); //hmm not doing anything so far
-             inB = false;
-             
-           }
-           else if(inA == true && inB == false)
-           {
-             diff.add(hit);
-             inA = false;
-           }
-           else
-           {
-             inB = false;
-           }
-           } else if(hit.entry == true)
-           {
-             if(inA == false && inB == false)
-             {
-               if(hit.isObja == true)
-               {
-                 inA = true;
-                 diff.add(hit);
-               }
-               else if(hit.isObja == false)
-               {
-                 inB = true;
-               }
-           } else if(inA == false && inB == true)
-           {
-             inA = true;
-           }
-           else
-           {
-             safecopy = hit;
-             safecopy.setE(false);
-             safecopy.setN(PVector.mult(hit.normal, -1));
-             diff.add(safecopy); //hmm not doing anything so far
-             inB = true;
-           }
-        
- 
-         }
-           counter++;
        }
-       } */
-     
+       else{
+          if(!inA && !inB){
+             if(hit.isObja){
+                diff.add(hit);
+                inA = true;
+             }
+             else{
+               inB = true; 
+             }
+          }
+          else if(inB && !inA){
+            inA = true; 
+          }
+          else{
+              safecopy = hit; 
+              safecopy.setE(false);
+              safecopy.setN(PVector.mult(safecopy.normal, -1));
+              diff.add(safecopy);
+              inB = true;
+          }
+       }
+     }
      return diff;
   }
-  
 }

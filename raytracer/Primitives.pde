@@ -150,10 +150,10 @@ class Plane implements SceneObject
           else if (denom > 0)
           {
             exit.setT(t);
-             exit.setN(normal);
-          exit.setL(yoft);
-          exit.setE(false);
-          result.add(exit);
+            exit.setN(normal);
+            exit.setL(yoft);
+            exit.setE(false);
+            result.add(exit);
           }
           
         /**  exit.setT(t);

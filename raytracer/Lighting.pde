@@ -87,7 +87,7 @@ class PhongLightingModel extends LightingModel
          specular = multColor(scaleColor(c, lights.get(i).specular), pow(R.dot(V), hit.material.properties.alpha));
          specular = multColor(specular, hit.material.properties.ks);
          
-         PVector Ln = PVector.mult(L, -1);
+         //PVector Ln = PVector.mult(L, -1);
          //Shadow ray stuff 
          Ray shadowRay = new Ray(PVector.add(hit.location, PVector.mult(L,EPS)),L);  //didn't multiply by negative this time bc shadow ray and light ray face the same way i think
          shadows = sc.root.intersect(shadowRay);
