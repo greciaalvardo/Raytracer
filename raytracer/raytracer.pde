@@ -1,5 +1,5 @@
-String input =  "data/tests/milestone3/test10.json";
-String output = "data/tests/milestone3/test10.png";
+String input =  "data/tests/milestone3/test15.json";
+String output = "data/tests/milestone3/test15.png";
 //String input =  "data/tests/submission1/test9.json";
 //String output = "data/tests/submission1/test9.png";
 int repeat = 0;
@@ -139,7 +139,131 @@ class RayTracer
        this.scene = scene;
     }
    
-    /**color getColor(int x, int y)
+   color getColor(int x, int y)
+    {
+      float w = width;
+      float h = height;
+      float u = x*1.0/w - 0.5;
+      float v = -(y*1.0/h - 0.5);
+      PVector origin = scene.camera;
+      PVector direction = new PVector(u*w, w/2, v*h).normalize();
+
+      Ray ray = new Ray(origin, direction);
+      ArrayList<RayHit> hits = scene.root.intersect(ray);
+      ArrayList<RayHit> rhits = hits;
+      ArrayList<RayHit> oldHits;
+      Ray safeCopy = ray;
+      
+       
+      if(rhits.size() > 0)
+      {
+        if (scene.reflections > 0)
+        {
+          
+          color oldColor = scene.lighting.getColor(rhits.get(0), scene, safeCopy.origin);
+          color newColor = oldColor;
+          int reflections = scene.reflections;
+          //getReflectionColor(reflColor, safeCopy, hits, reflections, scene);
+          
+          
+          while(scene.reflections>=reflections)
+          {
+            
+            PVector N = rhits.get(0).normal;
+            PVector V = PVector.sub(safeCopy.origin, rhits.get(0).location).normalize();
+            
+         // PVector L = hits.get(0).scene.lighting.lights.position;//i keep getting errors tryna use stuff from lighting -- i think bc the rayhit class doesnt have a scene object
+          PVector L = scene.lighting.lights.get(0).position;
+                  L = PVector.sub(L, hits.get(0).location).normalize();
+
+          
+            PVector R = PVector.mult(N, (2 * PVector.dot(N,V)));
+                    R = PVector.sub(R,V).normalize(); //v?? instead of l??
+                    
+            PVector Q = PVector.mult(R,-1);
+            float dotprod = Q.dot(N);
+                dotprod = 2* dotprod;
+                Q = PVector.mult(N, dotprod);
+                Q = PVector.add(Q, R);
+            oldHits = rhits;
+            
+            safeCopy = new Ray(PVector.add(rhits.get(0).location, PVector.mult(R, EPS)), R); //tried r instead of q and it worked??
+            rhits = scene.root.intersect(safeCopy);
+            
+            if(oldHits.get(0).material.properties.reflectiveness > 0)
+            {
+              if(rhits.size() >0)
+              newColor = lerpColor(oldColor,scene.lighting.getColor(rhits.get(0), scene, safeCopy.origin), oldHits.get(0).material.properties.reflectiveness);
+              else
+              break;
+            } else
+            {
+              break;
+            }
+            
+            reflections--;
+          }
+          
+          return newColor;
+        }
+        
+        return scene.lighting.getColor(hits.get(0), scene, ray.origin);
+        
+      }
+      
+      return scene.background;
+      
+    }
+    
+    void getReflectionColor(color oldColor, Ray reflection, ArrayList<RayHit> rhits, int depth, Scene scene) //didnt work but maybe it was a pass-by-value problem??? bc it worked directly in getcolor??
+    {
+      //color newColor = oldColor;
+      
+      // Base case
+      if(depth <= scene.reflections)
+        return;
+        
+        //manipulate oldColor
+        if(rhits.size()>0)
+        {
+          PVector N = rhits.get(0).normal;
+          PVector V = PVector.sub(reflection.origin, rhits.get(0).location).normalize();
+          
+          PVector R = PVector.mult(N, (2 * PVector.dot(N,V)));
+                  R = PVector.sub(R,V).normalize(); //v?? instead of l??
+          
+
+          Ray reflectr = new Ray(PVector.add(rhits.get(0).location, PVector.mult(R,EPS)), R); //put Q instead of direction not sure if it's right
+          ArrayList<RayHit> newRhits = scene.root.intersect(reflectr);
+          
+          //print("reflection hits size: " + newRhits.size() + " ");
+          if(rhits.get(0).material.properties.reflectiveness > 0) //it's literally reading this what's the problem???? :'((
+          {
+            //print("reflection!"); // it reads??? what's wrong??
+            if(newRhits.size() >0)
+            {
+            oldColor = lerpColor(oldColor, scene.lighting.getColor(newRhits.get(0), scene, reflectr.origin), rhits.get(0).material.properties.reflectiveness);
+            getReflectionColor(oldColor, reflectr, newRhits, --depth,scene);
+            } else
+            {
+              return;
+            }
+            
+          } else
+          {
+            //print("no reflection >:| ");
+            return;
+          }
+        } else
+          {
+            print("hi");
+            return;
+          }
+          
+    }
+    
+    
+       /**color getColor(int x, int y)
     {
       float w = width;
       float h = height;
@@ -202,96 +326,6 @@ class RayTracer
       /// this will be the fallback case
       //return this.scene.background;
    // }
-   
-   color getColor(int x, int y)
-    {
-      float w = width;
-      float h = height;
-      float u = x*1.0/w - 0.5;
-      float v = -(y*1.0/h - 0.5);
-      PVector origin = scene.camera;
-      PVector direction = new PVector(u*w, w/2, v*h).normalize();
-
-      Ray ray = new Ray(origin, direction);
-      ArrayList<RayHit> hits = scene.root.intersect(ray);
-      
-       
-      if(hits.size() > 0)
-      {
-        if (scene.reflections > 0 && hits.get(0).material.properties.reflectiveness > 0)
-        {
-          Ray safeCopy = ray;
-          
-          color reflColor = scene.lighting.getColor(hits.get(0), scene, safeCopy.origin);
-          getReflectionColor(reflColor, safeCopy, hits,scene.reflections);
-          
-          return reflColor;
-        }
-        
-        return scene.lighting.getColor(hits.get(0), scene, ray.origin);
-        
-      }
-      
-      return scene.background;
-      
-    }
-    
-    void getReflectionColor(color oldColor, Ray reflection, ArrayList<RayHit> rhits, int depth)
-    {
-      //color newColor = oldColor;
-      
-      // Base case
-      if(depth <= 0)
-        return;
-        
-        //manipulate oldColor
-        if(rhits.size()>0)
-        {
-          PVector N = rhits.get(0).normal;
-          PVector V = PVector.sub(reflection.origin, rhits.get(0).location).normalize();
-          
-          PVector R = PVector.mult(N, (2 * PVector.dot(N,V)));
-                  R = PVector.sub(R,V); //v?? instead of l??
-          
-
-          Ray reflectr = new Ray(PVector.add(rhits.get(0).location, PVector.mult(R,EPS)), R); //put Q instead of direction not sure if it's right
-          ArrayList<RayHit> newRhits = scene.root.intersect(reflectr);
-          
-          //print("reflection hits size: " + newRhits.size() + " ");
-          if(newRhits.size() >0 && rhits.get(0).material.properties.reflectiveness > 0)
-          {
-            //print("reflection!");
-            oldColor = lerpColor(oldColor, scene.lighting.getColor(rhits.get(0), scene, reflectr.origin), rhits.get(0).material.properties.reflectiveness);
-            getReflectionColor(oldColor, reflectr, newRhits, depth-1);
-          }
-          
-          else
-          {
-            //print("no reflection");
-            return;
-          }
-        }
-          else{
-            print("hi");
-            return; }
-          
-    }
-    
-    color shootRay(Ray r)
-    {
-      
-      ArrayList<RayHit> hits = scene.root.intersect(r);
-      color sc = hits.get(0).material.col;
-      color c = 0;
-      print("test");
-      if(scene.reflections > 0)
-      {
-        c = shootRay(r);
-      }
-      
-      return lerpColor(sc, c, hits.get(0).material.properties.reflectiveness);
-      
-    }
     
            //while(hits.get(0).material.properties.reflectiveness > 0){ //im confused bc would this come after the intersect method in line 175 :(( just a thought im prob wrong
           //as said in project description, the method we used in phone lighting is what we use to find Phong lighting
@@ -301,15 +335,6 @@ class RayTracer
           //  hit.material.col = shootRay(reflectr);
          // }
          
-         //PVector L = hits.get(0).scene.lighting.lights.position;//i keep getting errors tryna use stuff from lighting -- i think bc the rayhit class doesnt have a scene object
-         // PVector L = scene.lighting.lights.get(0).position;
-          //        L = PVector.sub(L, hits.get(0).location).normalize();
-
-          //PVector Q = PVector.mult(R,-1);
-          //float dotprod = Q.dot(N);
-            //    dotprod = 2* dotprod;
-            //      Q = PVector.mult(N, dotprod);
-//Q = PVector.add(Q, R);
 
          // Ray reflectr = new Ray(PVector.add(origin, PVector.mult(Q,EPS)), V); //put Q instead of direction not sure if it's right
           
