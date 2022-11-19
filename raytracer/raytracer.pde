@@ -1,5 +1,5 @@
-String input =  "data/tests/milestone2/test7.json";
-String output = "data/tests/milestone2/test7.png";
+String input =  "data/tests/milestone3/test10.json";
+String output = "data/tests/milestone3/test10.png";
 //String input =  "data/tests/submission1/test9.json";
 //String output = "data/tests/submission1/test9.png";
 int repeat = 0;
@@ -218,101 +218,62 @@ class RayTracer
        
       if(hits.size() > 0)
       {
-        if(hits.size()>0)
-      if (scene.reflections > 0)
-      {
-        //while(hits.get(0).material.properties.reflectiveness > 0){ //im confused bc would this come after the intersect method in line 175 :(( just a thought im prob wrong
-          //as said in project description, the method we used in phone lighting is what we use to find Phong lighting
-          //if(hits.size() >0)
-          print(hits.size());
-          PVector N = hits.get(0).normal;
-          PVector V = PVector.sub(ray.origin, hits.get(0).location).normalize();
+        if (scene.reflections > 0 && hits.get(0).material.properties.reflectiveness > 0)
+        {
+          Ray safeCopy = ray;
           
-          //PVector L = hits.get(0).scene.lighting.lights.position;//i keep getting errors tryna use stuff from lighting -- i think bc the rayhit class doesnt have a scene object
-          PVector L = scene.lighting.lights.get(0).position;
-                  L = PVector.sub(L, hits.get(0).location).normalize();
+          color reflColor = scene.lighting.getColor(hits.get(0), scene, safeCopy.origin);
+          getReflectionColor(reflColor, safeCopy, hits,scene.reflections);
           
-          PVector R = PVector.mult(N, (2 * PVector.dot(N,L)));
-                  R = PVector.sub(R,L).normalize();
-          
-          PVector Q = PVector.mult(R,-1);
-          float dotprod = Q.dot(N);
-                dotprod = 2* dotprod;
-                  Q = PVector.mult(N, dotprod);
-                  Q = PVector.add(Q, R);
-
-          Ray reflectr = new Ray(PVector.add(origin, PVector.mult(Q,EPS)), L); //put Q instead of direction not sure if it's right
-          
-          ArrayList<RayHit> rhits = scene.root.intersect(reflectr);
-          
-          // hits.get(0).material.properties.reflectiveness -- what is this?? idk
-          return getReflectionColor(scene.lighting.getColor(hits.get(0), scene, ray.origin), reflectr, hits, rhits, scene.reflections);
-          //for(RayHit hit : hits)
-          //{
-          //  hit.material.col = shootRay(reflectr);
-         // }
-
-          
-          /**for(int i = 0; i<hits.size(); i++)
-          {
-            if(rhits.get(i).material.properties.reflectiveness>0)
-            {
-              color test = scene.lighting.getColor(hits.get(0), scene, ray.origin);
-              hits.get(i).material.col = getReflectionColor(test, reflectr, hits, rhits, hits.get(i).material.properties.reflectiveness);
-            }
-          }
-          //if perfect mirror, reflectiveness = 1
-          if(hits.get(0).material.properties.reflectiveness == 1){
-            //return the calculated reflected ray
-          }
-          else{
-           //combine the surface colors and the result of the reflection ray; use lerp color
-          } */
-          
+          return reflColor;
         }
+        
         return scene.lighting.getColor(hits.get(0), scene, ray.origin);
+        
       }
       
       return scene.background;
       
     }
     
-    color getReflectionColor(color oldColor, Ray reflection, ArrayList<RayHit> hits, ArrayList<RayHit> rhits, int depth)
+    void getReflectionColor(color oldColor, Ray reflection, ArrayList<RayHit> rhits, int depth)
     {
-      color newColor = oldColor;
+      //color newColor = oldColor;
       
       // Base case
       if(depth <= 0)
-        return newColor;
+        return;
         
-        if(hits.size()>0){
-          print("hmm");
-          PVector N = hits.get(0).normal;
-          PVector V = PVector.sub(reflection.origin, hits.get(0).location).normalize();
-          
-          //PVector L = hits.get(0).scene.lighting.lights.position;//i keep getting errors tryna use stuff from lighting -- i think bc the rayhit class doesnt have a scene object
-         // PVector L = scene.lighting.lights.get(0).position;
-          //        L = PVector.sub(L, hits.get(0).location).normalize();
+        //manipulate oldColor
+        if(rhits.size()>0)
+        {
+          PVector N = rhits.get(0).normal;
+          PVector V = PVector.sub(reflection.origin, rhits.get(0).location).normalize();
           
           PVector R = PVector.mult(N, (2 * PVector.dot(N,V)));
-                  R = PVector.sub(R,V).normalize(); //v?? instead of l??
+                  R = PVector.sub(R,V); //v?? instead of l??
           
-          PVector Q = PVector.mult(R,-1);
-          float dotprod = Q.dot(N);
-                dotprod = 2* dotprod;
-                  Q = PVector.mult(N, dotprod);
-                  Q = PVector.add(Q, R);
 
-          Ray reflectr = new Ray(PVector.add(reflection.origin, PVector.mult(Q,EPS)), R); //put Q instead of direction not sure if it's right
+          Ray reflectr = new Ray(PVector.add(rhits.get(0).location, PVector.mult(R,EPS)), R); //put Q instead of direction not sure if it's right
           ArrayList<RayHit> newRhits = scene.root.intersect(reflectr);
           
-
-          newColor = lerpColor(oldColor, scene.lighting.getColor(hits.get(0), scene, reflectr.origin), hits.get(0).material.properties.reflectiveness);
+          //print("reflection hits size: " + newRhits.size() + " ");
+          if(newRhits.size() >0 && rhits.get(0).material.properties.reflectiveness > 0)
+          {
+            //print("reflection!");
+            oldColor = lerpColor(oldColor, scene.lighting.getColor(rhits.get(0), scene, reflectr.origin), rhits.get(0).material.properties.reflectiveness);
+            getReflectionColor(oldColor, reflectr, newRhits, depth-1);
+          }
           
-          return getReflectionColor(newColor, reflectr, rhits, newRhits, depth-1); }
+          else
+          {
+            //print("no reflection");
+            return;
+          }
+        }
           else{
             print("hi");
-          return oldColor; }
+            return; }
           
     }
     
@@ -331,4 +292,42 @@ class RayTracer
       return lerpColor(sc, c, hits.get(0).material.properties.reflectiveness);
       
     }
+    
+           //while(hits.get(0).material.properties.reflectiveness > 0){ //im confused bc would this come after the intersect method in line 175 :(( just a thought im prob wrong
+          //as said in project description, the method we used in phone lighting is what we use to find Phong lighting
+          //if(hits.size() >0)
+                    //for(RayHit hit : hits)
+          //{
+          //  hit.material.col = shootRay(reflectr);
+         // }
+         
+         //PVector L = hits.get(0).scene.lighting.lights.position;//i keep getting errors tryna use stuff from lighting -- i think bc the rayhit class doesnt have a scene object
+         // PVector L = scene.lighting.lights.get(0).position;
+          //        L = PVector.sub(L, hits.get(0).location).normalize();
+
+          //PVector Q = PVector.mult(R,-1);
+          //float dotprod = Q.dot(N);
+            //    dotprod = 2* dotprod;
+            //      Q = PVector.mult(N, dotprod);
+//Q = PVector.add(Q, R);
+
+         // Ray reflectr = new Ray(PVector.add(origin, PVector.mult(Q,EPS)), V); //put Q instead of direction not sure if it's right
+          
+         // ArrayList<RayHit> rhits = scene.root.intersect(reflectr);
+          
+          /**for(int i = 0; i<hits.size(); i++)
+          {
+            if(rhits.get(i).material.properties.reflectiveness>0)
+            {
+              color test = scene.lighting.getColor(hits.get(0), scene, ray.origin);
+              hits.get(i).material.col = getReflectionColor(test, reflectr, hits, rhits, hits.get(i).material.properties.reflectiveness);
+            }
+          }
+          //if perfect mirror, reflectiveness = 1
+          if(hits.get(0).material.properties.reflectiveness == 1){
+            //return the calculated reflected ray
+          }
+          else{
+           //combine the surface colors and the result of the reflection ray; use lerp color
+          } */
 }
