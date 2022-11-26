@@ -35,15 +35,17 @@ class Sphere implements SceneObject
             entry.setE(true);
             entry.setN(PVector.sub(entry.location, center).normalize());
             entry.setM(material);
-            entry.setU(0.0);
-            entry.setV(0.0);
+            PVector entryLocal = PVector.sub(entry.location, center).normalize();
+            entry.setU(0.5 + (atan2(entryLocal.y, entryLocal.x)/(2*PI)));
+            entry.setV(0.5 + (asin(entryLocal.z*-1)/(PI)));
             
             exit.setL(PVector.add(r.origin, PVector.mult(r.direction, exit.t)));
             exit.setE(false);
             exit.setN(PVector.sub(exit.location, center).normalize());
             exit.setM(material);
-            exit.setU(0.0);
-            exit.setV(0.0);
+            PVector exitLocal = PVector.sub(exit.location, center).normalize();
+            exit.setU(0.5 + (atan2(exitLocal.y, exitLocal.x)/(2*PI)));
+            exit.setV(0.5 + (asin(exitLocal.z*-1)/(PI)));
             
             if(entry.t > 0 && exit.t > 0)
             {
