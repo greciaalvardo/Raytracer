@@ -82,8 +82,6 @@ class Plane implements SceneObject
        this.material = material;
        this.scale = scale;
        
-       // remove this line when you implement planes
-       //throw new NotImplementedException("Planes not implemented yet");
     }
     
     ArrayList<RayHit> intersect(Ray r)
@@ -104,25 +102,49 @@ class Plane implements SceneObject
         float t = multdir/denom;
         PVector yoft = PVector.add(r.origin, PVector.mult(r.direction, t));
         
+        //texture 
+        PVector forward = normal;
+        PVector z; 
+        PVector y;
+        z = new PVector (0,0,1);
+        y = new PVector (0,1,0);
+        PVector d = yoft.sub(center);
+        if(forward != z){
+          PVector right = z.cross(forward).normalize();
+          PVector up = right.cross(forward).normalize();
+          float x = d.dot(right)/scale;
+          float yp = d.dot(up)/scale;
+          entry.setU(x - floor(x));
+          entry.setV((yp * 1) - floor(yp * 1)); //took away negatives and it worked hmmmm
+          
+          exit.setU(x - floor(x));
+          exit.setV((yp * -1) - floor(yp * -1));
+          
+          
+        }
+        else{
+          z = y;
+          PVector right = z.cross(forward).normalize();
+          PVector up = right.cross(forward).normalize();
+          float x = d.dot(right)/scale;
+          float yp = d.dot(up)/scale;
+          entry.setU(x - floor(x));
+          entry.setV((yp * -1) - floor(yp * -1));
+          
+          exit.setU(x - floor(x));
+          exit.setV((yp * -1) - floor(yp * -1));
+        }
+        //
         entry.setT(t);
         entry.setM(material);
-        entry.setU(0.0);
-        entry.setV(0.0);
-        //entry.setN(normal);
+        //entry.setU(0.0);
+        //entry.setV(0.0);
         exit.setM(material);
-        //exit.setN(normal);
-        exit.setU(0.0);
-        exit.setV(0.0);
+        //exit.setU(0.0);
+        //exit.setV(0.0);
         
         // orthogonal, will never hit sphere
         if(denom == 0){
-         /** if(multdir <= 0){
-              entry.setT(Float.POSITIVE_INFINITY);
-              entry.setL(new PVector(0,0,0));
-              entry.setN(normal);
-              entry.setE(false);
-              result.add(entry);
-          } */
           return result;
         }
         else
@@ -158,24 +180,8 @@ class Plane implements SceneObject
             result.add(exit);
           }
           
-        /**  exit.setT(t);
-          entry.setN(normal);
-          entry.setL(yoft);
-          entry.setE(true);
-          
-          exit.setN(normal);
-          exit.setL(yoft);
-          exit.setE(false);
-          
-          if(multdir <= 0){
-             result.add(entry); 
-          } */
-          //else{
-           //  exit.setN(PVector.mult(normal, -1));
-           //  result.add(exit);
-         // }
         }
-        }
+       }
       return result;
     }
 }
@@ -202,7 +208,7 @@ class Triangle implements SceneObject
        //this.normal = PVector.sub(v2, v1).cross(PVector.sub(v3, v1)).normalize();
        this.normal = PVector.sub(v3, v2).cross(PVector.sub(v1, v2)).normalize(); //not sure if this will make a difference?? :O
        this.material = material;
-           }
+     }
     
     float[] SameSide(PVector a, PVector b, PVector c, PVector p)
     {
@@ -223,9 +229,6 @@ class Triangle implements SceneObject
        UandV[0] = ((dotRG * d.dot(e)) - (EdotRG * d.dot(rg))) / denom;
        UandV[1] = ((dotE * d.dot(rg)) - (EdotRG * d.dot(e))) / denom;
        
-       //UandV.add(u);
-       //UandV.add(v);
-     
        return UandV;
     }
     
@@ -252,9 +255,18 @@ class Triangle implements SceneObject
         float tdenom = PVector.dot(r.direction, normal);
         float t = tnum / tdenom;
         
+        
         if(t > 0 &&  tdenom != 0){
           //where ray y hits a plane 
           PVector triyoft = PVector.add(r.origin, PVector.mult(r.direction, t));
+          //texture
+          float[] uv = SameSide(v1, v2, v3, triyoft);
+          float u = uv[0];
+          float v = uv[1];
+          float theta = u;
+          float phi = v;
+          float psi = 1 - (theta + phi);
+          //
           if(tdenom <= 0)
           {
             entry.setT(t);
@@ -278,12 +290,8 @@ class Triangle implements SceneObject
           boolean pit = PointInTriangle(v1, v2, v3, triyoft);
           if(pit){
               result.add(entry);
-              //result.add(exit);
               return result;
           }
-          
-          //return result;
-
         }
         return result;
           
