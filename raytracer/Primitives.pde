@@ -259,23 +259,29 @@ class Triangle implements SceneObject
         if(t > 0 &&  tdenom != 0){
           //where ray y hits a plane 
           PVector triyoft = PVector.add(r.origin, PVector.mult(r.direction, t));
-          //texture
-          float[] uv = SameSide(v1, v2, v3, triyoft);
-          float u = uv[0];
-          float v = uv[1];
-          float theta = u;
-          float phi = v;
-          float psi = 1 - (theta + phi);
-          //
+          
           if(tdenom <= 0)
           {
+            //texture
+            if(PointInTriangle(v1,v2,v3,triyoft))
+            {
+            float[] uv = SameSide(v1, v2, v3, triyoft);
+            float unr = uv[0]; //not the real value
+            float vnr = uv[1];
+            float theta = unr;
+            float phi = vnr;
+            float psi = 1 - (theta + phi);
+            entry.setU((theta * tex1.x) + (phi * tex2.x) + (psi * tex3.x));
+            entry.setV((theta * tex1.y) + (phi * tex2.y) + (psi* tex3.y));
+            //
+            }
             entry.setT(t);
             entry.setL(triyoft);
             entry.setE(true);
             entry.setN(normal);
             entry.setM(material);
-            entry.setU(0.0);
-            entry.setV(0.0);
+            //entry.setU(0.0);
+            //entry.setV(0.0);
           }
           else{
             exit.setT(t);
