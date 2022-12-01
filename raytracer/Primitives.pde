@@ -137,11 +137,8 @@ class Plane implements SceneObject
         //
         entry.setT(t);
         entry.setM(material);
-        //entry.setU(0.0);
-        //entry.setV(0.0);
+     
         exit.setM(material);
-        //exit.setU(0.0);
-        //exit.setV(0.0);
         
         // orthogonal, will never hit sphere
         if(denom == 0){
@@ -243,23 +240,7 @@ class Triangle implements SceneObject
       }
       return false;
     }
-    float[] Texture(PVector a, PVector b, PVector c, PVector p, PVector tex1, PVector tex2, PVector tex3){
-      float[] uv = new float[2];
-      float unr = SameSide(a, b, c, p)[0]; //not the real value
-      float vnr = SameSide(a, b, c, p)[1];
-      float theta = unr;
-      float phi = vnr;
-      float psi = 1 - (theta + phi);
-      
-      float u = (theta * tex1.x) + (phi * tex2.x) + (psi * tex3.x);
-      float v = (theta * tex1.y) + (phi * tex2.y) + (psi* tex3.y);
-      
-      uv[0] = u;
-      uv[1] = v;
-      
-      return uv;
-    }
-    
+  
     ArrayList<RayHit> intersect(Ray r)
     { 
         ArrayList<RayHit> result = new ArrayList<RayHit>();
@@ -270,35 +251,60 @@ class Triangle implements SceneObject
         float tnum = PVector.dot(PVector.sub(v1, r.origin), normal);
         float tdenom = PVector.dot(r.direction, normal);
         float t = tnum / tdenom;
-        PVector triyoft = PVector.add(r.origin, PVector.mult(r.direction, t));
         
-        if(t > 0){
-            
+        
+        if(t > 0 &&  tdenom != 0){
+          //where ray y hits a plane 
+          PVector triyoft = PVector.add(r.origin, PVector.mult(r.direction, t));
+          
+          if(tdenom <= 0)
+          {
+            //texture
+            if(PointInTriangle(v1,v2,v3,triyoft))
+            {
+              float enunr = SameSide(v3, v1, v2, triyoft)[0]; //not the real value
+              float envnr = SameSide(v3, v1, v2, triyoft)[1];
+              float entheta = enunr;
+              float enphi = envnr;
+              float enpsi = 1 - (entheta + enphi);
+              entry.setU((entheta * tex1.x) + (enphi * tex2.x) + (enpsi * tex3.x));
+              entry.setV((entheta * tex1.y) + (enphi * tex2.y) + (enpsi* tex3.y));
+            }
+            //
             entry.setT(t);
             entry.setL(triyoft);
             entry.setE(true);
             entry.setN(normal);
             entry.setM(material);
-            //texture
-            entry.setU(Texture(v1, v2, v3, entry.location, tex1, tex2, tex3)[0]);
-            entry.setV(Texture(v1, v2, v3, entry.location, tex1, tex2, tex3)[1]);
-            
+          }
+          else{
+             //texture
+            if(PointInTriangle(v1,v2,v3,triyoft))
+            {
+              float exunr = SameSide(v3, v1, v2, triyoft)[0]; //not the real value
+              float exvnr = SameSide(v3, v1, v2, triyoft)[1];
+              float extheta = exunr;
+              float exphi = exvnr;
+              float expsi = 1 - (extheta + exphi);
+              exit.setU((extheta * tex1.x) + (exphi * tex2.x) + (expsi * tex3.x));
+              exit.setV((extheta * tex1.y) + (exphi * tex2.y) + (expsi* tex3.y));
+            }
+            //
             exit.setT(t);
             exit.setL(triyoft);
             exit.setE(false);
-            exit.setN(PVector.mult(normal, -1));
+            exit.setN(normal);
             exit.setM(material);
-            //texture
-            exit.setU(Texture(v1, v2, v3, exit.location, tex1, tex2, tex3)[0]);
-            exit.setV(Texture(v1, v2, v3, exit.location, tex1, tex2, tex3)[1]);
-            
-            if(PointInTriangle(v1, v2, v3, entry.location)){
-                if(entry.location.dot(this.normal) <= 0){
-                   result.add(entry);  
-                }
-            }
+            exit.setU(0.0);
+            exit.setV(0.0);
+          } 
           
-       }
+          boolean pit = PointInTriangle(v1, v2, v3, triyoft);
+          if(pit){
+              result.add(entry);
+              return result;
+          }
+        }
         return result;
           
     }
