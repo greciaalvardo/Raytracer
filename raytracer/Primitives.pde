@@ -243,6 +243,22 @@ class Triangle implements SceneObject
       }
       return false;
     }
+    float[] Texture(PVector a, PVector b, PVector c, PVector p, PVector tex1, PVector tex2, PVector tex3){
+      float[] uv = new float[2];
+      float unr = SameSide(a, b, c, p)[0]; //not the real value
+      float vnr = SameSide(a, b, c, p)[1];
+      float theta = unr;
+      float phi = vnr;
+      float psi = 1 - (theta + phi);
+      
+      float u = (theta * tex1.x) + (phi * tex2.x) + (psi * tex3.x);
+      float v = (theta * tex1.y) + (phi * tex2.y) + (psi* tex3.y);
+      
+      uv[0] = u;
+      uv[1] = v;
+      
+      return uv;
+    }
     
     ArrayList<RayHit> intersect(Ray r)
     { 
@@ -254,56 +270,33 @@ class Triangle implements SceneObject
         float tnum = PVector.dot(PVector.sub(v1, r.origin), normal);
         float tdenom = PVector.dot(r.direction, normal);
         float t = tnum / tdenom;
+        PVector triyoft = PVector.add(r.origin, PVector.mult(r.direction, t));
         
-        
-        if(t > 0 &&  tdenom != 0){
-          //where ray y hits a plane 
-          PVector triyoft = PVector.add(r.origin, PVector.mult(r.direction, t));
-          
-          if(tdenom <= 0)
-          {
-            //texture
-            float unr = SameSide(v1, v2, v3, triyoft)[0]; //not the real value
-            float vnr = SameSide(v1, v2, v3, triyoft)[1];
-            float theta = unr;
-            float phi = vnr;
-            float psi = 1 - (theta + phi);
-            entry.setU((theta * tex1.x) + (phi * tex2.x) + (psi * tex3.x));
-            entry.setV((theta * tex1.y) + (phi * tex2.y) + (psi* tex3.y));
-            //
+        if(t > 0){
+            
             entry.setT(t);
             entry.setL(triyoft);
             entry.setE(true);
             entry.setN(normal);
             entry.setM(material);
-            
-          }
-          else{
             //texture
-            float unr = SameSide(v1, v2, v3, triyoft)[0]; //not the real value
-            float vnr = SameSide(v1, v2, v3, triyoft)[1];
-            float theta = unr;
-            float phi = vnr;
-            float psi = 1 - (theta + phi);
-            exit.setU((theta * tex1.x) + (phi * tex2.x) + (psi * tex3.x));
-            exit.setV((theta * tex1.y) + (phi * tex2.y) + (psi* tex3.y));
-            //
+            entry.setU(Texture(v1, v2, v3, entry.location, tex1, tex2, tex3)[0]);
+            entry.setV(Texture(v1, v2, v3, entry.location, tex1, tex2, tex3)[1]);
+            
             exit.setT(t);
             exit.setL(triyoft);
             exit.setE(false);
-            exit.setN(normal);
+            exit.setN(PVector.mult(normal, -1));
             exit.setM(material);
-          } 
-          
-          boolean pit = PointInTriangle(v1, v2, v3, triyoft);
-          if(pit){
-              if(entry.location.dot(this.normal) <= 0){
-                 result.add(entry);  
-              }
-              else{
-                 result.add(exit); 
-              }
-          }
+            //texture
+            exit.setU(Texture(v1, v2, v3, exit.location, tex1, tex2, tex3)[0]);
+            exit.setV(Texture(v1, v2, v3, exit.location, tex1, tex2, tex3)[1]);
+            
+            if(PointInTriangle(v1, v2, v3, entry.location)){
+                if(entry.location.dot(this.normal) <= 0){
+                   result.add(entry);  
+                }
+            }
           
        }
         return result;
