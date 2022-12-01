@@ -263,18 +263,14 @@ class Triangle implements SceneObject
           if(tdenom <= 0)
           {
             //texture
-            if(PointInTriangle(v1,v2,v3,triyoft))
-            {
-            float[] uv = SameSide(v1, v2, v3, triyoft);
-            float unr = uv[0]; //not the real value
-            float vnr = uv[1];
+            float unr = SameSide(v1, v2, v3, triyoft)[0]; //not the real value
+            float vnr = SameSide(v1, v2, v3, triyoft)[1];
             float theta = unr;
             float phi = vnr;
             float psi = 1 - (theta + phi);
             entry.setU((theta * tex1.x) + (phi * tex2.x) + (psi * tex3.x));
             entry.setV((theta * tex1.y) + (phi * tex2.y) + (psi* tex3.y));
             //
-            }
             entry.setT(t);
             entry.setL(triyoft);
             entry.setE(true);
@@ -284,18 +280,14 @@ class Triangle implements SceneObject
           }
           else{
             //texture
-            if(PointInTriangle(v1,v2,v3,triyoft))
-            {
-            float[] uv = SameSide(v1, v2, v3, triyoft);
-            float unr = uv[0]; //not the real value
-            float vnr = uv[1];
+            float unr = SameSide(v1, v2, v3, triyoft)[0]; //not the real value
+            float vnr = SameSide(v1, v2, v3, triyoft)[1];
             float theta = unr;
             float phi = vnr;
             float psi = 1 - (theta + phi);
             exit.setU((theta * tex1.x) + (phi * tex2.x) + (psi * tex3.x));
             exit.setV((theta * tex1.y) + (phi * tex2.y) + (psi* tex3.y));
             //
-            }
             exit.setT(t);
             exit.setL(triyoft);
             exit.setE(false);
@@ -305,10 +297,15 @@ class Triangle implements SceneObject
           
           boolean pit = PointInTriangle(v1, v2, v3, triyoft);
           if(pit){
-              result.add(entry);
-              return result;
+              if(entry.location.dot(this.normal) <= 0){
+                 result.add(entry);  
+              }
+              else{
+                 result.add(exit); 
+              }
           }
-        }
+          
+       }
         return result;
           
     }
