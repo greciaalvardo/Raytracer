@@ -66,7 +66,6 @@ class Sphere implements SceneObject
 }
 
 class Plane implements SceneObject
-
 {
     PVector center;
     PVector normal;
@@ -104,16 +103,24 @@ class Plane implements SceneObject
         
         //texture 
         PVector forward = normal;
-        PVector z; 
-        PVector y;
+        PVector z,
+                y,
+                right,
+                up;
+                
+        float x,
+              yp;
+              
         z = new PVector (0,0,1);
         y = new PVector (0,1,0);
-        PVector d = yoft.sub(center);
-        if(forward != z){
-          PVector right = z.cross(forward).normalize();
-          PVector up = right.cross(forward).normalize();
-          float x = d.dot(right)/scale;
-          float yp = d.dot(up)/scale;
+       
+        PVector d = PVector.sub(yoft, center);
+        
+        if(normal != z){
+          right = z.cross(forward).normalize();
+          up = right.cross(forward).normalize();
+          x = d.dot(right)/scale;
+          yp = d.dot(up)/scale;
           entry.setU(x - floor(x));
           entry.setV((yp * 1) - floor(yp * 1)); //took away negatives and it worked hmmmm
           
@@ -124,39 +131,16 @@ class Plane implements SceneObject
         }
         else{
           z = y;
-          PVector right = z.cross(forward).normalize();
-          PVector up = right.cross(forward).normalize();
-          float x = d.dot(right)/scale;
-          float yp = d.dot(up)/scale;
+          right = z.cross(forward).normalize();
+          up = right.cross(forward).normalize();
+          x = d.dot(right)/scale;
+          yp = d.dot(up)/scale;
           entry.setU(x - floor(x));
           entry.setV((yp * -1) - floor(yp * -1));
           
           exit.setU(x - floor(x));
           exit.setV((yp * -1) - floor(yp * -1));
         }
-        //
-        entry.setT(t);
-        entry.setM(material);
-     
-        exit.setM(material);
-        
-        // orthogonal, will never hit sphere
-        if(denom == 0){
-          return result;
-        }
-        else
-        {
-        
-        if(t < 0){
-          if(denom < 0){
-              entry.setT(Float.POSITIVE_INFINITY);
-              entry.setL(new PVector(0,0,0));
-              entry.setN(normal);
-              entry.setE(false);
-              result.add(entry); 
-          }
-          return result;
-        } 
         
         if(t > 0){
           
@@ -166,6 +150,7 @@ class Plane implements SceneObject
             entry.setN(normal);
             entry.setL(yoft);
             entry.setE(true);
+            entry.setM(material);
             result.add(entry);
           }
           else if (denom > 0)
@@ -174,11 +159,12 @@ class Plane implements SceneObject
             exit.setN(normal);
             exit.setL(yoft);
             exit.setE(false);
+            exit.setM(material);
             result.add(exit);
           }
           
         }
-       }
+       //}
       return result;
     }
 }

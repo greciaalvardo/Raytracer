@@ -1,5 +1,5 @@
-String input =  "data/tests/milestone4/test7.json";
-String output = "data/tests/milestone4/test7.png";
+String input =  "data/tests/milestone4/test6.json";
+String output = "data/tests/milestone4/test6.png";
 //String input =  "data/tests/submission1/test9.json";
 //String output = "data/tests/submission1/test9.png";
 int repeat = 0;
@@ -157,7 +157,7 @@ class RayTracer
        
       if(rhits.size() > 0)
       {
-        if (scene.reflections > 0)
+        if (scene.reflections > 0) // this is fine
         {
           
           color oldColor = scene.lighting.getColor(rhits.get(0), scene, safeCopy.origin);
@@ -166,40 +166,31 @@ class RayTracer
           //getReflectionColor(reflColor, safeCopy, hits, reflections, scene);
           
           
-          while(scene.reflections>=reflections)
+          while(scene.reflections>=reflections && rhits.size() >0) // this is fine
           {
             
             PVector N = rhits.get(0).normal;
             PVector V = PVector.sub(safeCopy.origin, rhits.get(0).location).normalize();
-            
-         // PVector L = hits.get(0).scene.lighting.lights.position;//i keep getting errors tryna use stuff from lighting -- i think bc the rayhit class doesnt have a scene object
-          PVector L = scene.lighting.lights.get(0).position;
-                  L = PVector.sub(L, hits.get(0).location).normalize();
-
           
             PVector R = PVector.mult(N, (2 * PVector.dot(N,V)));
-                    R = PVector.sub(R,V).normalize(); //v?? instead of l??
-                    
-            PVector Q = PVector.mult(R,-1);
-            float dotprod = Q.dot(N);
-                dotprod = 2* dotprod;
-                Q = PVector.mult(N, dotprod);
-                Q = PVector.add(Q, R);
+                    R = PVector.sub(R,V).normalize(); //v?? instead of l??  
+                   
             oldHits = rhits;
             
             safeCopy = new Ray(PVector.add(rhits.get(0).location, PVector.mult(R, EPS)), R); //tried r instead of q and it worked??
             rhits = scene.root.intersect(safeCopy);
             
-            if(oldHits.get(0).material.properties.reflectiveness > 0)
+           if(oldHits.get(0).material.properties.reflectiveness > 0)
             {
               if(rhits.size() >0)
               newColor = lerpColor(oldColor,scene.lighting.getColor(rhits.get(0), scene, safeCopy.origin), oldHits.get(0).material.properties.reflectiveness);
-              else
-              break;
-            } else
+             
+            } else // having just break here and >0 makes test10 perfect
             {
               break;
+             
             }
+        
             
             reflections--;
           }
