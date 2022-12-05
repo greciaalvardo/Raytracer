@@ -1,5 +1,5 @@
-String input =  "data/tests/milestone4/test6.json";
-String output = "data/tests/milestone4/test6.png";
+String input =  "data/tests/milestone2/test12.json";
+String output = "data/tests/milestone2/test12.png";
 //String input =  "data/tests/submission1/test9.json";
 //String output = "data/tests/submission1/test9.png";
 int repeat = 0;
@@ -163,17 +163,15 @@ class RayTracer
           color oldColor = scene.lighting.getColor(rhits.get(0), scene, safeCopy.origin);
           color newColor = oldColor;
           int reflections = scene.reflections;
-          //getReflectionColor(reflColor, safeCopy, hits, reflections, scene);
           
-          
-          while(scene.reflections>=reflections && rhits.size() >0) // this is fine
+          while(scene.reflections>=reflections && rhits.size() > 0) // this is fine
           {
             
             PVector N = rhits.get(0).normal;
             PVector V = PVector.sub(safeCopy.origin, rhits.get(0).location).normalize();
           
             PVector R = PVector.mult(N, (2 * PVector.dot(N,V)));
-                    R = PVector.sub(R,V).normalize(); //v?? instead of l??  
+                    R = PVector.sub(R,V).normalize();
                    
             oldHits = rhits;
             
@@ -190,9 +188,8 @@ class RayTracer
               break;
              
             }
-        
-            
-            reflections--;
+         
+            reflections++;
           }
           
           return newColor;
@@ -205,145 +202,5 @@ class RayTracer
       return scene.background;
       
     }
-    
-    void getReflectionColor(color oldColor, Ray reflection, ArrayList<RayHit> rhits, int depth, Scene scene) //didnt work but maybe it was a pass-by-value problem??? bc it worked directly in getcolor??
-    {
-      //color newColor = oldColor;
-      
-      // Base case
-      if(depth <= scene.reflections)
-        return;
-        
-        //manipulate oldColor
-        if(rhits.size()>0)
-        {
-          PVector N = rhits.get(0).normal;
-          PVector V = PVector.sub(reflection.origin, rhits.get(0).location).normalize();
-          
-          PVector R = PVector.mult(N, (2 * PVector.dot(N,V)));
-                  R = PVector.sub(R,V).normalize(); //v?? instead of l??
-          
 
-          Ray reflectr = new Ray(PVector.add(rhits.get(0).location, PVector.mult(R,EPS)), R); //put Q instead of direction not sure if it's right
-          ArrayList<RayHit> newRhits = scene.root.intersect(reflectr);
-          
-          //print("reflection hits size: " + newRhits.size() + " ");
-          if(rhits.get(0).material.properties.reflectiveness > 0) //it's literally reading this what's the problem???? :'((
-          {
-            //print("reflection!"); // it reads??? what's wrong??
-            if(newRhits.size() >0)
-            {
-            oldColor = lerpColor(oldColor, scene.lighting.getColor(newRhits.get(0), scene, reflectr.origin), rhits.get(0).material.properties.reflectiveness);
-            getReflectionColor(oldColor, reflectr, newRhits, --depth,scene);
-            } else
-            {
-              return;
-            }
-            
-          } else
-          {
-            //print("no reflection >:| ");
-            return;
-          }
-        } else
-          {
-            print("hi");
-            return;
-          }
-          
-    }
-    
-    
-       /**color getColor(int x, int y)
-    {
-      float w = width;
-      float h = height;
-      float u = x*1.0/w - 0.5;
-      float v = -(y*1.0/h - 0.5);
-      PVector origin = scene.camera;
-      PVector direction = new PVector(u*w, w/2, v*h).normalize();
-      Ray ray = new Ray(origin, direction);
-      ArrayList<RayHit> hits = scene.root.intersect(ray);
-      
-      if (scene.reflections > 0)
-      {
-        while(hits.get(0).material.properties.reflectiveness > 0){ //im confused bc would this come after the intersect method in line 175 :(( just a thought im prob wrong
-          //as said in project description, the method we used in phone lighting is what we use to find Phong lighting
-          PVector N = hits.get(0).normal;
-          PVector V = PVector.sub(ray.origin, hits.get(0).location).normalize();
-          
-          //PVector L = hits.get(0).scene.lighting.lights.position;//i keep getting errors tryna use stuff from lighting -- i think bc the rayhit class doesnt have a scene object
-          PVector L = scene.lighting.lights.get(0).position;
-                  L = PVector.sub(L, hits.get(0).location).normalize();
-          
-          PVector R = PVector.mult(N, (2 * PVector.dot(N,L)));
-                  R = PVector.sub(R,L).normalize();
-          
-          PVector Q = PVector.mult(R,-1);
-          float dotprod = Q.dot(N);
-                dotprod = 2* dotprod;
-                  Q = PVector.mult(N, dotprod);
-                  Q = PVector.add(Q, R);
-          Ray reflectr = new Ray(PVector.add(origin, PVector.mult(Q,EPS)), L); //put Q instead of direction not sure if it's right
-          ArrayList<RayHit> rhits = scene.root.intersect(reflectr);
-          
-          
-          //if perfect mirror, reflectiveness = 1
-          if(hits.get(0).material.properties.reflectiveness == 1){
-            //return the calculated reflected ray
-          }
-          else{
-           //combine the surface colors and the result of the reflection ray; use lerp color 
-          }
-          
-        }
-        
-      }
-       
-      if(hits.size() > 0)
-      {
-        return scene.lighting.getColor(hits.get(0), scene, ray.origin);
-      }
-      return scene.background;
-      
-      /*if (scene.reflections > 0)
-      {
-          // remove this line when you implement reflection
-          throw new NotImplementedException("Reflection not implemented yet");
-      }*/
-      
-     
-      
-      /// this will be the fallback case
-      //return this.scene.background;
-   // }
-    
-           //while(hits.get(0).material.properties.reflectiveness > 0){ //im confused bc would this come after the intersect method in line 175 :(( just a thought im prob wrong
-          //as said in project description, the method we used in phone lighting is what we use to find Phong lighting
-          //if(hits.size() >0)
-                    //for(RayHit hit : hits)
-          //{
-          //  hit.material.col = shootRay(reflectr);
-         // }
-         
-
-         // Ray reflectr = new Ray(PVector.add(origin, PVector.mult(Q,EPS)), V); //put Q instead of direction not sure if it's right
-          
-         // ArrayList<RayHit> rhits = scene.root.intersect(reflectr);
-          
-          /**for(int i = 0; i<hits.size(); i++)
-          {
-            if(rhits.get(i).material.properties.reflectiveness>0)
-            {
-              color test = scene.lighting.getColor(hits.get(0), scene, ray.origin);
-              hits.get(i).material.col = getReflectionColor(test, reflectr, hits, rhits, hits.get(i).material.properties.reflectiveness);
-            }
-          }
-          //if perfect mirror, reflectiveness = 1
-          if(hits.get(0).material.properties.reflectiveness == 1){
-            //return the calculated reflected ray
-          }
-          else{
-           //combine the surface colors and the result of the reflection ray; use lerp color
-          } */
 }

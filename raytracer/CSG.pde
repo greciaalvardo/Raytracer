@@ -60,16 +60,6 @@ class Union implements SceneObject
          enter--;
        }
      }
-     //check for alternating 
-     /*for (int i = 0; i < union.size(); i++){
-       if(union.get(i).entry == true && union.get(i+1).entry == false){
-         alternating = true;
-         println(alternating);
-       }
-       else{
-        println("not"); 
-       }
-     }*/
      
      return union;
   }
@@ -95,7 +85,6 @@ class Intersection implements SceneObject
      {
        //corner case
        childexithit = sc.intersect(r);
-       //println(childexithit);
        if(childexithit.size() > 0){
          if(childexithit.get(0).entry == false){
             enter ++;

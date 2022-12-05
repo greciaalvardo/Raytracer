@@ -80,14 +80,12 @@ class PhongLightingModel extends LightingModel
          L = lights.get(i).position;
          L = PVector.sub(L, hit.location).normalize();
          diffuse = multColor(scaleColor(c, lights.get(i).diffuse), hit.material.properties.kd * (L.dot(N))); // (lm.N)*id
-         //diffuse = multColor(diffuse, hit.material.properties.kd); // kd * above^
          
          R = PVector.mult(N, (2 * PVector.dot(N,L)));
          R = PVector.sub(R,L).normalize();
          specular = multColor(scaleColor(c, lights.get(i).specular), pow(R.dot(V), hit.material.properties.alpha));
          specular = multColor(specular, hit.material.properties.ks);
-         
-         //PVector Ln = PVector.mult(L, -1);
+
          //Shadow ray stuff 
          Ray shadowRay = new Ray(PVector.add(hit.location, PVector.mult(L,EPS)),L);  //didn't multiply by negative this time bc shadow ray and light ray face the same way i think
          shadows = sc.root.intersect(shadowRay);
@@ -121,9 +119,3 @@ class PhongLightingModel extends LightingModel
     }
   
 }
-
-             //if(shadows.get(0).location.dot(hit.location) > L.dot(hit.location))
-             //if(lights.get(i).position.mag() > shadows.get(0).location.mag()){ //this ones weird, adds shadows in weird places
-             //if(PVector.sub(lights.get(i).position, shadows.get(0).location).mag() > EPS){
-             //if(shadows.get(0).location.mag() > EPS){
-             //if(shadows.get(0).t < lights.get(i).position.mag()){
