@@ -1,7 +1,10 @@
-String input =  "data/tests/milestone2/test12.json";
-String output = "data/tests/milestone2/test12.png";
-//String input =  "data/tests/submission1/test9.json";
-//String output = "data/tests/submission1/test9.png";
+String input =  "data/tests/milestone4/test14.json";
+String output = "data/tests/milestone4/test14.png";
+//String input =  "data/tests/mytestcases/testcase1.json";
+//String output = "data/tests/mytestcases/test1case.png";
+//String input =  "data/tests/submission4/test43.json";
+//String output = "data/tests/submission4/test43.png";
+
 int repeat = 0;
 
 int iteration = 0;
@@ -164,7 +167,7 @@ class RayTracer
           color newColor = oldColor;
           int reflections = scene.reflections;
           
-          while(scene.reflections>=reflections && rhits.size() > 0) // this is fine
+          while(scene.reflections >= reflections && rhits.size() > 0) // this is fine
           {
             
             PVector N = rhits.get(0).normal;
@@ -178,13 +181,15 @@ class RayTracer
             safeCopy = new Ray(PVector.add(rhits.get(0).location, PVector.mult(R, EPS)), R); //tried r instead of q and it worked??
             rhits = scene.root.intersect(safeCopy);
             
-           if(oldHits.get(0).material.properties.reflectiveness > 0)
+           if(rhits.size() > 0 && oldHits.get(0).material.properties.reflectiveness > 0)
             {
-              if(rhits.size() >0)
+              //if(rhits.size() >0)
               newColor = lerpColor(oldColor,scene.lighting.getColor(rhits.get(0), scene, safeCopy.origin), oldHits.get(0).material.properties.reflectiveness);
              
             } else // having just break here and >0 makes test10 perfect
             {
+              newColor = lerpColor(oldColor, this.scene.background, oldHits.get(0).material.properties.reflectiveness);
+
               break;
              
             }

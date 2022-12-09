@@ -103,17 +103,16 @@ class Intersection implements SceneObject
        {
          if(enter == elements.length-1){
            intersection.add(hit);
-           enter++;
+           //enter++;
          }
-      
          
          enter++;
        }
-       else if(hit.entry == false)
+       else 
        {
          if(enter == elements.length){
            intersection.add(hit);
-           enter--;
+           //enter--;
          }
          
          

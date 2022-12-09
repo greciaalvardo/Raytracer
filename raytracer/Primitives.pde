@@ -26,7 +26,6 @@ class Sphere implements SceneObject
         float tp = cSubo.dot(r.direction);
 
         float x = PVector.sub(PVector.add(r.origin, PVector.mult(r.direction, tp)), center).mag(); // x = |(o + tp*d - c)|
-
         if(x < radius){
             entry.setT(tp - sqrt( pow(radius, 2) - pow(x, 2)));
             exit.setT(tp + sqrt( pow(radius, 2) - pow(x, 2)));
@@ -47,18 +46,11 @@ class Sphere implements SceneObject
             exit.setU(0.5 + (atan2(exitLocal.y, exitLocal.x)/(2*PI)));
             exit.setV(0.5 + (asin(exitLocal.z*-1)/(PI)));
             
-            if(entry.t > 0 && exit.t > 0)
-            {
-              if(entry.t > exit.t)
-              {
-                result.add(exit);
+            if(entry.t > 0){
                 result.add(entry);
               }
-              else
-              {
-                result.add(entry);
+            if(exit.t > 0){
                 result.add(exit);
-              }
             }
         }
         return result;
@@ -116,32 +108,45 @@ class Plane implements SceneObject
        
         PVector d = PVector.sub(yoft, center);
         
-        if(normal != z){
-          right = z.cross(forward).normalize();
-          up = right.cross(forward).normalize();
-          x = d.dot(right)/scale;
-          yp = d.dot(up)/scale;
-          entry.setU(x - floor(x));
-          entry.setV((yp * 1) - floor(yp * 1)); //took away negatives and it worked hmmmm
-          
-          exit.setU(x - floor(x));
-          exit.setV((yp * -1) - floor(yp * -1));
-          
-          
-        }
-        else{
-          z = y;
-          right = z.cross(forward).normalize();
-          up = right.cross(forward).normalize();
-          x = d.dot(right)/scale;
-          yp = d.dot(up)/scale;
-          entry.setU(x - floor(x));
-          entry.setV((yp * -1) - floor(yp * -1));
-          
-          exit.setU(x - floor(x));
-          exit.setV((yp * -1) - floor(yp * -1));
-        }
         
+       /* if(t < 0){
+          if(denom < 0){
+              entry.setT(Float.POSITIVE_INFINITY);
+              entry.setL(new PVector(0,0,0));
+              entry.setN(normal);
+              entry.setE(false);
+              entry.setU(0.0);
+              entry.setV(0.0);
+              result.add(entry); 
+          }
+          return result;
+        } */
+        
+        if(!normal.equals(z)){
+            right = z.cross(forward).normalize();
+            up = right.cross(forward).normalize();
+            x = d.dot(right)/scale;
+            yp = d.dot(up)/scale;
+            entry.setU(x - floor(x));
+            entry.setV((yp * 1) - floor(yp * 1)); //took away negatives and it worked hmmmm
+            
+            exit.setU(x - floor(x));
+            exit.setV((yp * -1) - floor(yp * -1));
+          
+          }
+         else{
+            z = y;
+            right = z.cross(forward).normalize();
+            up = right.cross(forward).normalize();
+            x = d.dot(right)/scale;
+            yp = d.dot(up)/scale;
+            entry.setU(x - floor(x));
+            entry.setV((yp * -1) - floor(yp * -1));
+            
+            exit.setU(x - floor(x));
+            exit.setV((yp * -1) - floor(yp * -1));
+         }
+         
         if(t > 0){
           
           if(denom < 0)
@@ -164,7 +169,7 @@ class Plane implements SceneObject
           }
           
         }
-       //}
+        
       return result;
     }
 }
@@ -232,65 +237,56 @@ class Triangle implements SceneObject
         ArrayList<RayHit> result = new ArrayList<RayHit>();
         RayHit entry = new RayHit();
         RayHit exit = new RayHit();
-        
         //finding t
         float tnum = PVector.dot(PVector.sub(v1, r.origin), normal);
         float tdenom = PVector.dot(r.direction, normal);
         float t = tnum / tdenom;
         
         
-        if(t > 0 &&  tdenom != 0){
+        if(t > 0 ){
+          
+          entry.setT(t);
+          exit.setT(t);
           //where ray y hits a plane 
           PVector triyoft = PVector.add(r.origin, PVector.mult(r.direction, t));
+          entry.setL(triyoft);
+          entry.setE(true);
+          entry.setN(normal);
+          entry.setM(material);
           
-          if(tdenom <= 0)
-          {
-            //texture
-            if(PointInTriangle(v1,v2,v3,triyoft))
-            {
-              float enunr = SameSide(v3, v1, v2, triyoft)[0]; //not the real value
-              float envnr = SameSide(v3, v1, v2, triyoft)[1];
-              float entheta = enunr;
-              float enphi = envnr;
-              float enpsi = 1 - (entheta + enphi);
-              entry.setU((entheta * tex1.x) + (enphi * tex2.x) + (enpsi * tex3.x));
-              entry.setV((entheta * tex1.y) + (enphi * tex2.y) + (enpsi* tex3.y));
-            }
-            //
-            entry.setT(t);
-            entry.setL(triyoft);
-            entry.setE(true);
-            entry.setN(normal);
-            entry.setM(material);
-          }
-          else{
-             //texture
-            if(PointInTriangle(v1,v2,v3,triyoft))
-            {
-              float exunr = SameSide(v3, v1, v2, triyoft)[0]; //not the real value
-              float exvnr = SameSide(v3, v1, v2, triyoft)[1];
-              float extheta = exunr;
-              float exphi = exvnr;
-              float expsi = 1 - (extheta + exphi);
-              exit.setU((extheta * tex1.x) + (exphi * tex2.x) + (expsi * tex3.x));
-              exit.setV((extheta * tex1.y) + (exphi * tex2.y) + (expsi* tex3.y));
-            }
-            //
-            exit.setT(t);
-            exit.setL(triyoft);
-            exit.setE(false);
-            exit.setN(normal);
-            exit.setM(material);
-            exit.setU(0.0);
-            exit.setV(0.0);
-          } 
+          float enunr = SameSide(v3, v1, v2, triyoft)[0]; //not the real value
+          float envnr = SameSide(v3, v1, v2, triyoft)[1];
+          float entheta = enunr;
+          float enphi = envnr;
+          float enpsi = 1 - (entheta + enphi);
+          
+          entry.setU((entheta * tex1.x) + (enphi * tex2.x) + (enpsi * tex3.x));
+          entry.setV((entheta * tex1.y) + (enphi * tex2.y) + (enpsi* tex3.y));
+          
+          exit.setL(triyoft);
+          exit.setE(false);
+          exit.setN(normal);
+          exit.setM(material);
+          
+          float exunr = SameSide(v3, v1, v2, triyoft)[0]; //not the real value
+          float exvnr = SameSide(v3, v1, v2, triyoft)[1];
+          float extheta = exunr;
+          float exphi = exvnr;
+          float expsi = 1 - (extheta + exphi);
+          
+          exit.setU((extheta * tex1.x) + (exphi * tex2.x) + (expsi * tex3.x));
+          exit.setV((extheta * tex1.y) + (exphi * tex2.y) + (expsi* tex3.y));
+  
           
           boolean pit = PointInTriangle(v1, v2, v3, triyoft);
           if(pit){
-              result.add(entry);
-              return result;
-          }
+                entry.setL(PVector.add(r.origin, PVector.mult(r.direction, t+EPS)));
+                result.add(entry);
+   
+                exit.setL(PVector.add(r.origin, PVector.mult(r.direction, t+EPS)));
+                result.add(exit);
         }
+      }
         return result;
           
     }
