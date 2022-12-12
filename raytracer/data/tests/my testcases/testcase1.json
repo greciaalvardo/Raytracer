@@ -1,6 +1,26 @@
 {
-    "scene"{
+  "scene": { "type": "union",
+             "children": [
+             {"type": "plane",
+             "scale": 500,
+               "center": {"x": 0, "y": 250, "z": -40},
+               "normal": {"y": -0.5, "z": 2},
+               "reflectiveness": 0.5,
+               "material": {"ka": 0.3, "kd": 0.6, "ks": 0, "type": "textured", "texture": "water.jpg"}},
+             
+              
+                {
+                "type": "triangle",
+                "v1": {"x": -10, "y": 20, "z": -5},
+                "v2": {"x": 15, "y": 23, "z": -5},
+                "v3": {"x": 4, "y": 18, "z": 10},
+                "material": { "color": {"r": 192, "g": 192,"b": 192}, "ka": 0.3, "kd": 0.2, "ks": 0.8, "alpha": 10}
+                }
+                
+             
+] },
 
-    },
-    
+  "reflections": 4,
+  "background": {"r": 16, "g": 67,"b": 130},
+  "lighting": {"type": "phong","shadows": false, "lights": [{"position": {"x": 0, "y": -10, "z": -3}, "color": {"r": 255, "g": 10,"b": 39}}]}
 }

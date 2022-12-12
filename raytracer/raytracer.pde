@@ -1,7 +1,9 @@
-String input =  "data/tests/milestone4/test14.json";
-String output = "data/tests/milestone4/test14.png";
-//String input =  "data/tests/mytestcases/testcase1.json";
-//String output = "data/tests/mytestcases/test1case.png";
+//String input =  "data/tests/milestone4/test10.json";
+//String output = "data/tests/milestone4/test10.png";
+//String input =  "data/tests/my testcases/tree.json";
+//String output = "data/tests/my testcases/tree.png";
+String input =  "data/tests/my testcases/cat_2-80.json";
+String output = "data/tests/my testcases/cat_2-80.png";
 //String input =  "data/tests/submission4/test43.json";
 //String output = "data/tests/submission4/test43.png";
 

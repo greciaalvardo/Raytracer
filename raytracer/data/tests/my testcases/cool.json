@@ -1,0 +1,33 @@
+{
+    "scene": {"type": "union",
+              "children": [
+                 {"type": "plane",
+                  "scale": 13,
+                  "center": {"z": -4},
+                  "normal": {"z": 1},
+                  "material": {"type": "textured", "texture": "glass.jpg", "reflectiveness": 0.6}
+                 },
+              {
+                "type": "sphere",
+                 "radius": 2,
+                 "center": {"z": -2, "y": 10},
+                 "material": {"type": "textured", "texture": "pb2.jpg", "reflectiveness": 0.1}
+              },
+              {
+                "type": "plane",
+             "center": {"x": -10, "y": 5, "z": 0},
+             "normal": {"x": 0.71, "y": 0.1, "z": 1},
+             "material": {"ka": 0.5, "kd": 0.3, "ks": 0.2, "alpha": 3, "color": {"r": 255, "g": 100}, "reflectiveness": 0.1, "type": "textured", "texture": "glass.jpg"}
+              },
+              {
+                "type": "plane",
+             "center": {"x": 10, "y": 5, "z": 0},
+             "normal": {"x": -0.71, "y": 0.1, "z": 1},
+             "material": {"ka": 0.5, "kd": 0.3, "ks": 0.2, "alpha": 3, "color": {"r": 255, "g": 100}, "reflectiveness": 0.1, "type": "textured", "texture": "glass.jpg"}
+              }
+             ]},
+            
+    "background": {"r": 0, "g": 0,"b": 0},
+    "reflections": 4,
+    "lighting": {"type": "phong","shadows": true, "lights": [{"position": {"x": 11, "y": 1, "z": 10}, "color": {"r": 255, "g": 255,"b": 255}}, {"position": {"x": -10, "y": 5, "z": 5}, "color": {"r": 255, "g": 10,"b": 39}}, {"position": {"x": -10, "y": -5, "z":-2}, "color": {"r": 255, "g": 218,"b": 10}}]}
+ }

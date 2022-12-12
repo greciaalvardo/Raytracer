@@ -3,13 +3,14 @@
 import pywavefront 
 import json
 
-texture = "chair02.png"
-fname = "chair02.obj"
-outfile = "chair.json"
+texture = "MaterialBaseColor.png"
+fname = "Tree.obj"
+outfile = "tree.json"
 
-xoffset = 0
-yoffset = 300
-zoffset = -70
+
+xoffset = 2
+yoffset = 0
+zoffset = -10
 
 
 header = """
@@ -24,7 +25,7 @@ footer = """
 """
 
 scene = pywavefront.Wavefront(fname)
-verts = scene.materials["default0"].vertices
+verts = list(scene.materials.values())[0].vertices
 
 # verts contains *all* triangle vertex information consecutively:
 # 8 entries per vertex:
@@ -38,7 +39,7 @@ for i in range(len(verts)//24):
     for vert in range(3):
         base = i*24 + vert*8    
         u = verts[base]
-        v = verts[base+1]
+        v = 1 - verts[base+1]
         x = verts[base + 5]
         y = verts[base + 6]
         z = verts[base + 7]
